@@ -1,1 +1,67 @@
 /* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@plugin "daisyui";
+
+@theme {
+  /* Navy */
+  --color-navy-50: #f5f7fa;
+  --color-navy-100: #e3e8ee;
+  --color-navy-200: #cad1dd;
+  --color-navy-300: #a1aec0;
+  --color-navy-400: #72859b;
+  --color-navy-500: #4a5c76;
+  --color-navy-600: #3a4a62;
+  --color-navy-700: #2f3a4f;
+  --color-navy-800: #252f40;
+  --color-navy-900: #1d2534;
+  --color-navy-950: #121825;
+
+  /* Slate */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #0b1220;
+
+  /* Bordeaux */
+  --color-bordeaux-50: #fdf2f2;
+  --color-bordeaux-100: #fce8e8;
+  --color-bordeaux-200: #fbd1d1;
+  --color-bordeaux-300: #f8b4b4;
+  --color-bordeaux-400: #f28080;
+  --color-bordeaux-500: #e54e4e;
+  --color-bordeaux-600: #c23535;
+  --color-bordeaux-700: #9a2828;
+  --color-bordeaux-800: #7a2020;
+  --color-bordeaux-900: #5c1818;
+  --color-bordeaux-950: #3d1010;
+
+  /* Stone */
+  --color-stone-50: #fafaf9;
+  --color-stone-100: #f5f5f4;
+  --color-stone-200: #e7e5e4;
+  --color-stone-300: #d6d3d1;
+  --color-stone-400: #a8a29e;
+  --color-stone-500: #78716c;
+  --color-stone-600: #57534e;
+  --color-stone-700: #44403c;
+  --color-stone-800: #292524;
+  --color-stone-900: #1c1917;
+  --color-stone-950: #0f0e0d;
+
+  /* Utility colors */
+  --color-success-500: #4d7c0f;
+  --color-success-600: #3f621c;
+  --color-error-500: #b91c1c;
+  --color-error-600: #991b1b;
+  --color-warning-500: #92400e;
+  --color-warning-600: #78350f;
+  --color-info-500: #1e40af;
+  --color-info-600: #1e3a8a;
+}
