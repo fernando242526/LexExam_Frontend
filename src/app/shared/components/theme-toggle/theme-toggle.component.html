@@ -1,0 +1,19 @@
+<button (click)="toggleTheme()" class="p-2 rounded-full transition-colors duration-200 focus:outline-none"
+    [attr.aria-label]="(themeService.isDarkMode$() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro')"
+    [attr.title]="(themeService.isDarkMode$() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro')"
+    [style.background-color]="themeService.isDarkMode$() ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'">
+    <!-- Icono de sol para modo oscuro (visible cuando está en dark) -->
+    @if (themeService.isDarkMode$()) {
+
+    <span class="block">
+        <fa-icon [icon]="faSun" class="text-xl text-yellow-400"></fa-icon>
+    </span>
+    }
+
+    @if (!themeService.isDarkMode$()) {
+    <!-- Icono de luna para modo claro (visible cuando está en light) -->
+    <span class="block">
+        <fa-icon [icon]="faMoon" class="text-slate-700"></fa-icon>
+    </span>
+    }
+</button>

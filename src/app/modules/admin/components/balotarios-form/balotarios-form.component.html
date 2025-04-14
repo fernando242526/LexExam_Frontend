@@ -1,0 +1,142 @@
+<!-- src/app/features/admin/balotarios/pages/balotarios-form/balotarios-form.component.html -->
+<div class="p-6 max-w-7xl mx-auto">
+  <!-- Encabezado de sección -->
+  <div class="mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <h1 class="text-2xl font-bold text-text-primary">{{ title }}</h1>
+      <button (click)="goBack()"
+        class="flex items-center gap-2 px-4 py-2 bg-surface-alt hover:bg-border text-text-secondary rounded-lg transition-colors duration-200">
+        <fa-icon [icon]="faArrowLeft"></fa-icon>
+        <span>Volver</span>
+      </button>
+    </div>
+    <p class="text-text-secondary mt-1">
+      {{ isEditing ? 'Actualice la información del balotario' : 'Complete el formulario para crear un nuevo balotario'
+      }}
+    </p>
+  </div>
+
+  <!-- Formulario -->
+  <form [formGroup]="balotarioForm" (ngSubmit)="onSubmit()"
+    class="bg-surface rounded-xl shadow-sm border border-border p-6">
+    <!-- Campo nombre -->
+    <div class="mb-5">
+      <label for="nombre" class="block text-sm font-medium text-text-secondary mb-2">
+        Nombre <span class="text-bordeaux-500">*</span>
+      </label>
+      <input type="text" id="nombre" formControlName="nombre"
+        class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+        placeholder="Ej. Balotario para examen de jueces 2025"
+        [ngClass]="{'border-bordeaux-500': balotarioForm.get('nombre')?.invalid && balotarioForm.get('nombre')?.touched}">
+      @if (balotarioForm.get('nombre')?.invalid && balotarioForm.get('nombre')?.touched) {
+      <p class="mt-2 text-sm text-bordeaux-500">
+        <span *ngIf="balotarioForm.get('nombre')?.errors?.['required']">El nombre es obligatorio.</span>
+        <span *ngIf="balotarioForm.get('nombre')?.errors?.['maxlength']">El nombre no puede exceder los 150
+          caracteres.</span>
+      </p>
+      }
+    </div>
+
+    <!-- Campo especialidad -->
+    <div class="mb-5" formGroupName="especialidad">
+      <label for="especialidadId" class="block text-sm font-medium text-text-secondary mb-2">
+        Especialidad <span class="text-bordeaux-500">*</span>
+      </label>
+      <select id="especialidadId" formControlName="id"
+        class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+        [ngClass]="{'border-bordeaux-500': balotarioForm.get('especialidad')?.get('id')?.invalid && balotarioForm.get('especialidad')?.get('id')?.touched}">
+        <option value="" disabled>Seleccione una especialidad</option>
+        @for (especialidad of especialidades; track especialidad.id) {
+        <option [value]="especialidad.id">{{ especialidad.nombre }}</option>
+        }
+      </select>
+      @if (balotarioForm.get('especialidad')?.get('id')?.invalid &&
+      balotarioForm.get('especialidad')?.get('id')?.touched) {
+      <p class="mt-2 text-sm text-bordeaux-500">
+        <span *ngIf="balotarioForm.get('especialidad')?.get('id')?.errors?.['required']">La especialidad es
+          obligatoria.</span>
+      </p>
+      }
+    </div>
+
+    <!-- Campo año e institución en fila -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+      <!-- Campo año -->
+      <div>
+        <label for="anio" class="block text-sm font-medium text-text-secondary mb-2">
+          Año <span class="text-text-secondary text-xs">(opcional)</span>
+        </label>
+        <input type="number" id="anio" formControlName="anio" placeholder="Ej. 2025" min="2000" max="2100"
+          class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+          [ngClass]="{'border-bordeaux-500': balotarioForm.get('anio')?.invalid && balotarioForm.get('anio')?.touched}">
+        @if (balotarioForm.get('anio')?.invalid && balotarioForm.get('anio')?.touched) {
+        <p class="mt-2 text-sm text-bordeaux-500">
+          <span *ngIf="balotarioForm.get('anio')?.errors?.['min']">El año no puede ser menor a 2000.</span>
+          <span *ngIf="balotarioForm.get('anio')?.errors?.['max']">El año no puede ser mayor a 2100.</span>
+        </p>
+        }
+      </div>
+
+      <!-- Campo institución -->
+      <div>
+        <label for="institucion" class="block text-sm font-medium text-text-secondary mb-2">
+          Institución <span class="text-text-secondary text-xs">(opcional)</span>
+        </label>
+        <input type="text" id="institucion" formControlName="institucion" placeholder="Ej. Poder Judicial del Perú"
+          class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+          [ngClass]="{'border-bordeaux-500': balotarioForm.get('institucion')?.invalid && balotarioForm.get('institucion')?.touched}">
+        @if (balotarioForm.get('institucion')?.invalid && balotarioForm.get('institucion')?.touched) {
+        <p class="mt-2 text-sm text-bordeaux-500">
+          <span *ngIf="balotarioForm.get('institucion')?.errors?.['maxlength']">La institución no puede exceder los 150
+            caracteres.</span>
+        </p>
+        }
+      </div>
+    </div>
+
+    <!-- Campo descripción -->
+    <div class="mb-5">
+      <label for="descripcion" class="block text-sm font-medium text-text-secondary mb-2">
+        Descripción <span class="text-text-secondary text-xs">(opcional)</span>
+      </label>
+      <textarea id="descripcion" formControlName="descripcion" rows="4"
+        class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary resize-none"
+        placeholder="Escriba una descripción del balotario..."></textarea>
+    </div>
+
+    <!-- Campo activo (solo visible en modo edición) -->
+    @if (isEditing) {
+    <div class="mb-5">
+      <div class="flex items-center">
+        <input type="checkbox" id="activo" formControlName="activo"
+          class="w-4 h-4 text-accent bg-surface-alt border-border rounded focus:ring-accent focus:ring-2">
+        <label for="activo" class="ml-2 text-sm font-medium text-text-secondary">
+          Balotario activo
+        </label>
+      </div>
+      <p class="mt-1 text-xs text-text-secondary">
+        Los balotarios inactivos no aparecerán en los listados para los usuarios.
+      </p>
+    </div>
+    }
+
+    <!-- Botones de acción -->
+    <div class="flex justify-end mt-8">
+      <button type="button" (click)="goBack()"
+        class="px-4 py-2 mr-3 border border-border rounded-lg text-text-secondary hover:bg-surface-alt transition-colors duration-200">
+        Cancelar
+      </button>
+
+      <button type="submit" [disabled]="isSubmitting"
+        class="flex items-center gap-2 px-6 py-2 bg-accent hover:bg-accent-hover text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed">
+        @if (isSubmitting) {
+        <fa-icon [icon]="faSpinner"></fa-icon>
+        <span>Guardando...</span>
+        } @else {
+        <fa-icon [icon]="faSave"></fa-icon>
+        <span>{{ submitButtonText }}</span>
+        }
+      </button>
+    </div>
+  </form>
+</div>

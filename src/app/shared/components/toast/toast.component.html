@@ -1,0 +1,46 @@
+<!-- src/app/shared/components/ui/toast/toast.component.html -->
+<div class="toast-container">
+  @for (toast of toastsValue(); track toast.id) {
+    <div 
+      [@toastAnimation]="'visible'"
+      class="toast-item flex items-start p-4 mb-3"
+      [class]="getContainerClass(toast.type)"
+    >
+      <!-- Icono en círculo -->
+      <div class="toast-icon-container" [class]="getIconContainerClass(toast.type)">
+        <fa-icon 
+          [icon]="getIconForType(toast.type)" 
+          class="text-white"
+        ></fa-icon>
+      </div>
+      
+      <!-- Contenido -->
+      <div class="flex-1 mr-2">
+        <p class="font-semibold text-gray-800 dark:text-white">
+          {{ toast.message }}
+        </p>
+        @if (toast.detail) {
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+            {{ toast.detail }}
+          </p>
+        }
+      </div>
+      
+      <!-- Botón cerrar -->
+      @if (toast.dismissible) {
+        <button 
+          (click)="dismiss(toast.id)" 
+          class="toast-close-btn text-gray-500 dark:text-gray-400"
+          aria-label="Cerrar notificación"
+        >
+          <fa-icon [icon]="closeIcon" class="text-xs"></fa-icon>
+        </button>
+      }
+      
+      <!-- Barra de progreso -->
+      @if (toast.duration > 0) {
+        <div class="toast-progress" [class]="getProgressClass(toast.type)" [style.width.%]="getProgress(toast)"></div>
+      }
+    </div>
+  }
+</div>

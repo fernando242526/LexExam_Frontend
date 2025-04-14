@@ -1,0 +1,112 @@
+<!-- src/app/features/auth/pages/login/auth-login.component.html -->
+<div class="min-h-screen flex items-center justify-center bg-background">
+  <div class="w-full max-w-md p-8 mx-auto rounded-xl shadow-lg bg-surface">
+    <!-- Encabezado -->
+    <div class="text-center mb-6">
+      <div class="flex justify-center mb-4">
+        <div class="w-16 h-16 rounded-xl bg-accent flex items-center justify-center text-white">
+          <span class="text-3xl font-bold">LE</span>
+        </div>
+      </div>
+      <h1 class="text-2xl font-bold text-text-primary">LexExam</h1>
+      <p class="text-text-secondary">Preparación de exámenes para abogados</p>
+    </div>
+
+    <!-- Formulario de inicio de sesión -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      <!-- Alerta de error -->
+      @if (loginError) {
+      <div
+        class="alert alert-error rounded-lg border border-bordeaux-600 bg-bordeaux-50 dark:bg-bordeaux-900 text-bordeaux-600 p-4 mb-4">
+        <p>{{ loginError }}</p>
+      </div>
+      }
+
+      <!-- Campo de nombre de usuario -->
+      <div class="space-y-2">
+        <label for="username" class="block text-sm font-medium text-text-secondary">
+          Nombre de usuario o correo electrónico
+        </label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <fa-icon [icon]="faUser" class="text-slate-400"></fa-icon>
+          </div>
+          <input type="text" id="username" formControlName="username"
+            class="w-full pl-10 pr-3 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+            placeholder="Ingresa tu nombre de usuario" autocomplete="username">
+        </div>
+        @if (loginForm.get('username')?.invalid && loginForm.get('username')?.touched) {
+        <p class="text-bordeaux-500 text-sm mt-1">El nombre de usuario es obligatorio</p>
+        }
+      </div>
+
+      <!-- Campo de contraseña -->
+      <div class="space-y-2">
+        <label for="password" class="block text-sm font-medium text-text-secondary">
+          Contraseña
+        </label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <fa-icon [icon]="faLock" class="text-slate-400"></fa-icon>
+          </div>
+          <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
+            class="w-full pl-10 pr-10 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+            placeholder="Ingresa tu contraseña" autocomplete="current-password">
+          <button type="button" (click)="togglePasswordVisibility()"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-secondary hover:text-text-primary">
+            <fa-icon [icon]="showPassword ? faEyeSlash : faEye"></fa-icon>
+          </button>
+        </div>
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+        <p class="text-bordeaux-500 text-sm mt-1">
+          <span *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es obligatoria</span>
+          <span *ngIf="loginForm.get('password')?.errors?.['minlength']">La contraseña debe tener al menos 8
+            caracteres</span>
+        </p>
+        }
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="pt-2">
+        <button type="submit" [disabled]="loginForm.invalid || isSubmitting"
+          class="w-full py-3 px-4 bg-accent hover:bg-accent-hover text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed">
+          <span *ngIf="!isSubmitting">Iniciar sesión</span>
+          <span *ngIf="isSubmitting" class="flex justify-center items-center">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            Iniciando sesión...
+          </span>
+        </button>
+      </div>
+
+      <!-- Enlaces adicionales -->
+      <div class="flex justify-between text-sm pt-2">
+        <a href="#" class="text-accent hover:text-accent-hover transition-colors duration-200">
+          ¿Olvidaste tu contraseña?
+        </a>
+        <a routerLink="/auth/register" class="text-accent hover:text-accent-hover transition-colors duration-200">
+          Registrarse
+        </a>
+      </div>
+    </form>
+
+    <!-- Selector de tema -->
+    <div class="mt-8 pt-4 border-t border-border flex justify-center">
+      <button (click)="themeService.toggleTheme()"
+        class="flex items-center gap-2 px-3 py-2 rounded-lg text-text-secondary hover:bg-surface-alt transition-colors duration-200">
+        @if (themeService.isDarkMode$()) {
+        <fa-icon [icon]="sun" class="text-yellow-400"></fa-icon>
+        <span>Modo Claro</span>
+        } @else {
+        <fa-icon [icon]="moon" class="text-slate-700"></fa-icon>
+        <span>Modo Oscuro</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>

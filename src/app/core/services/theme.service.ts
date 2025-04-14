@@ -1,0 +1,66 @@
+import { Injectable, signal, computed, effect } from '@angular/core';
+
+/**
+ * @description Servicio para gestionar el tema de la aplicación (claro/oscuro)
+ */
+@Injectable({
+  providedIn: 'root'
+})
+export class ThemeService {
+  /** Signal que almacena el estado del tema actual */
+  private isDarkMode = signal<boolean>(this.getInitialThemeState());
+  
+  /** Signal computado que expone si el tema actual es oscuro */
+  public isDarkMode$ = computed(() => this.isDarkMode());
+  
+  /** Signal computado que devuelve el nombre del tema actual */
+  public currentTheme$ = computed(() => this.isDarkMode() ? 'dark' : 'light');
+
+  constructor() {
+    // Efecto para actualizar el DOM y localStorage cuando cambia el tema
+    effect(() => {
+      const isDark = this.isDarkMode();
+      
+      // Actualizar la clase en el elemento HTML
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      
+      // Guardar preferencia en localStorage
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+  }
+
+  /**
+   * Determina el estado inicial del tema basado en la preferencia guardada
+   * o las preferencias del sistema del usuario
+   * @returns boolean - true si el tema inicial debe ser oscuro
+   */
+  private getInitialThemeState(): boolean {
+    // Revisar localStorage para preferencia guardada
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      return savedTheme === 'dark';
+    }
+    
+    // Si no hay preferencia guardada, usar preferencia del sistema
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  /**
+   * Alterna entre los modos claro y oscuro
+   */
+  public toggleTheme(): void {
+    this.isDarkMode.update(current => !current);
+  }
+
+  /**
+   * Establece un tema específico
+   * @param isDark - true para tema oscuro, false para tema claro
+   */
+  public setTheme(isDark: boolean): void {
+    this.isDarkMode.set(isDark);
+  }
+}
