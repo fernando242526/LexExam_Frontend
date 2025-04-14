@@ -1,0 +1,164 @@
+<!-- src/app/modules/admin/components/temas-form/temas-form.component.html -->
+<div class="p-6 max-w-7xl mx-auto">
+    <!-- Encabezado de sección -->
+    <div class="mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 class="text-2xl font-bold text-text-primary">{{ title }}</h1>
+        <button (click)="goBack()"
+          class="flex items-center gap-2 px-4 py-2 bg-surface-alt hover:bg-border text-text-secondary rounded-lg transition-colors duration-200">
+          <fa-icon [icon]="faArrowLeft"></fa-icon>
+          <span>Volver</span>
+        </button>
+      </div>
+      <p class="text-text-secondary mt-1">
+        {{ isEditing ? 'Actualice la información del tema' : 'Complete el formulario para crear un nuevo tema' }}
+      </p>
+    </div>
+  
+    <!-- Mensaje de error -->
+    @if (error) {
+    <div
+      class="mb-6 p-4 rounded-lg bg-bordeaux-50 dark:bg-bordeaux-900 border border-bordeaux-300 dark:border-bordeaux-700 text-bordeaux-700 dark:text-bordeaux-300 flex items-center gap-3">
+      <fa-icon [icon]="faExclamationTriangle" class="text-bordeaux-500"></fa-icon>
+      <span>{{ error }}</span>
+    </div>
+    }
+  
+    <!-- Formulario -->
+    <form [formGroup]="temaForm" (ngSubmit)="onSubmit()"
+      class="bg-surface rounded-xl shadow-sm border border-border p-6">
+  
+      <!-- Campo especialidad -->
+    <div class="mb-5">
+        <label for="especialidadId" class="block text-sm font-medium text-text-secondary mb-2">
+          Especialidad <span class="text-bordeaux-500">*</span>
+        </label>
+        <select id="especialidadId" formControlName="especialidadId"
+          class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+          [ngClass]="{'border-bordeaux-500': temaForm.get('especialidadId')?.invalid && temaForm.get('especialidadId')?.touched}"
+          [disabled]="isLoadingEspecialidades">
+          <option value="" disabled>{{ isLoadingEspecialidades ? 'Cargando especialidades...' : 'Seleccione una especialidad' }}</option>
+          @for (especialidad of especialidades; track especialidad.id) {
+          <option [value]="especialidad.id">{{ especialidad.nombre }}</option>
+          }
+        </select>
+        @if (temaForm.get('especialidadId')?.invalid && temaForm.get('especialidadId')?.touched) {
+        <p class="mt-2 text-sm text-bordeaux-500">
+          <span *ngIf="temaForm.get('especialidadId')?.errors?.['required']">La especialidad es obligatoria.</span>
+        </p>
+        }
+      </div>
+  
+      <!-- Campo balotario -->
+      <div class="mb-5" formGroupName="balotario">
+        <label for="balotarioId" class="block text-sm font-medium text-text-secondary mb-2">
+          Balotario <span class="text-bordeaux-500">*</span>
+        </label>
+        <select id="balotarioId" formControlName="id"
+          class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+          [ngClass]="{'border-bordeaux-500': temaForm.get('balotario')?.get('id')?.invalid && temaForm.get('balotario')?.get('id')?.touched}"
+          [disabled]="isLoadingBalotarios || !temaForm.get('especialidadId')?.value">
+          <option value="" disabled>
+            @if (isLoadingBalotarios) {
+              Cargando balotarios...
+            } @else if (!temaForm.get('especialidadId')?.value) {
+              Primero seleccione una especialidad
+            } @else if (balotarios.length === 0) {
+              No hay balotarios para esta especialidad
+            } @else {
+              Seleccione un balotario
+            }
+          </option>
+          @for (balotario of balotarios; track balotario.id) {
+          <option [value]="balotario.id">{{ balotario.nombre }}</option>
+          }
+        </select>
+        @if (temaForm.get('balotario')?.get('id')?.invalid &&
+        temaForm.get('balotario')?.get('id')?.touched) {
+        <p class="mt-2 text-sm text-bordeaux-500">
+          <span *ngIf="temaForm.get('balotario')?.get('id')?.errors?.['required']">El balotario es obligatorio.</span>
+        </p>
+        }
+      </div>
+  
+      <!-- Campo título -->
+      <div class="mb-5">
+        <label for="titulo" class="block text-sm font-medium text-text-secondary mb-2">
+          Título <span class="text-bordeaux-500">*</span>
+        </label>
+        <input type="text" id="titulo" formControlName="titulo"
+          class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+          placeholder="Ej. La Constitución: Concepto y estructura"
+          [ngClass]="{'border-bordeaux-500': temaForm.get('titulo')?.invalid && temaForm.get('titulo')?.touched}">
+        @if (temaForm.get('titulo')?.invalid && temaForm.get('titulo')?.touched) {
+        <p class="mt-2 text-sm text-bordeaux-500">
+          <span *ngIf="temaForm.get('titulo')?.errors?.['required']">El título es obligatorio.</span>
+          <span *ngIf="temaForm.get('titulo')?.errors?.['maxlength']">El título no puede exceder los 200 caracteres.</span>
+        </p>
+        }
+      </div>
+  
+      <!-- Campo orden -->
+      <div class="mb-5">
+        <label for="orden" class="block text-sm font-medium text-text-secondary mb-2">
+          Orden <span class="text-bordeaux-500">*</span>
+        </label>
+        <input type="number" id="orden" formControlName="orden"
+          class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+          placeholder="Ej. 1"
+          [ngClass]="{'border-bordeaux-500': temaForm.get('orden')?.invalid && temaForm.get('orden')?.touched}">
+        <p class="mt-1 text-sm text-text-secondary">
+          Define el orden de presentación del tema dentro del balotario.
+        </p>
+        @if (temaForm.get('orden')?.invalid && temaForm.get('orden')?.touched) {
+        <p class="mt-2 text-sm text-bordeaux-500">
+          <span *ngIf="temaForm.get('orden')?.errors?.['required']">El orden es obligatorio.</span>
+          <span *ngIf="temaForm.get('orden')?.errors?.['min']">El orden debe ser un número positivo.</span>
+        </p>
+        }
+      </div>
+  
+      <!-- Campo descripción -->
+      <div class="mb-5">
+        <label for="descripcion" class="block text-sm font-medium text-text-secondary mb-2">
+          Descripción <span class="text-text-secondary text-xs">(opcional)</span>
+        </label>
+        <textarea id="descripcion" formControlName="descripcion" rows="4"
+          class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary resize-none"
+          placeholder="Escriba una descripción del tema..."></textarea>
+      </div>
+  
+      <!-- Campo activo (siempre visible, pero más importante en modo edición) -->
+      <div class="mb-5">
+        <div class="flex items-center">
+          <input type="checkbox" id="activo" formControlName="activo"
+            class="w-4 h-4 text-accent bg-surface-alt border-border rounded focus:ring-accent focus:ring-2">
+          <label for="activo" class="ml-2 text-sm font-medium text-text-secondary">
+            Tema activo
+          </label>
+        </div>
+        <p class="mt-1 text-xs text-text-secondary">
+          Los temas inactivos no aparecerán en los listados para los usuarios.
+        </p>
+      </div>
+  
+      <!-- Botones de acción -->
+      <div class="flex justify-end mt-8">
+        <button type="button" (click)="goBack()"
+          class="px-4 py-2 mr-3 border border-border rounded-lg text-text-secondary hover:bg-surface-alt transition-colors duration-200">
+          Cancelar
+        </button>
+  
+        <button type="submit" [disabled]="isSubmitting"
+          class="flex items-center gap-2 px-6 py-2 bg-accent hover:bg-accent-hover text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed">
+          @if (isSubmitting) {
+          <fa-icon [icon]="faSpinner" class="animate-spin"></fa-icon>
+          <span>Guardando...</span>
+          } @else {
+          <fa-icon [icon]="faSave"></fa-icon>
+          <span>{{ submitButtonText }}</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>

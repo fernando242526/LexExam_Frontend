@@ -1,0 +1,206 @@
+<!-- src/app/modules/admin/temas/view-temas/view-temas.component.html -->
+<div class="p-6 max-w-full">
+    <!-- Encabezado de sección -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-text-primary">Temas</h1>
+      <p class="text-text-secondary mt-1">Gestione los temas de los balotarios</p>
+    </div>
+    
+    <!-- Formulario de filtros -->
+    <form [formGroup]="filterForm" class="mb-6">
+      <!-- Barra principal de búsqueda y acciones -->
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
+        <!-- Búsqueda -->
+        <div class="relative w-full md:w-96">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-text-secondary">
+            <fa-icon [icon]="faSearch"></fa-icon>
+          </span>
+          <input 
+            type="text"
+            formControlName="search"
+            placeholder="Buscar tema..." 
+            class="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+          >
+        </div>
+        
+        <div class="flex items-center gap-3 w-full md:w-auto">
+          <!-- Botón de filtros -->
+          <button 
+            type="button"
+            (click)="toggleFilters()"
+            class="flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-surface-alt transition-colors duration-200"
+            [class.bg-surface-alt]="filterForm.get('showFilters')?.value"
+          >
+            <fa-icon [icon]="faFilter"></fa-icon>
+            <span>Filtros</span>
+          </button>
+          
+          <!-- Botón agregar -->
+          <a 
+            routerLink="/admin/temas/create" 
+            class="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors duration-200 ml-auto whitespace-nowrap"
+          >
+            <fa-icon [icon]="faPlus"></fa-icon>
+            <span>Nuevo Tema</span>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Filtros avanzados (colapsables) -->
+      @if (filterForm.get('showFilters')?.value) {
+        <div class="bg-surface-alt p-4 rounded-lg border border-border mb-4 animate-fadeIn">
+          <div class="flex flex-wrap gap-4">
+            <!-- Filtro por balotario -->
+            <div class="w-full md:w-64">
+              <label for="balotarioId" class="block text-sm font-medium text-text-secondary mb-1">
+                Balotario
+              </label>
+              <select 
+                id="balotarioId" 
+                formControlName="balotarioId"
+                class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface text-text-primary"
+              >
+                <option value="">Todos los balotarios</option>
+                @for (balotario of balotarios; track balotario.id) {
+                  <option [value]="balotario.id">{{ balotario.nombre }}</option>
+                }
+              </select>
+            </div>
+            
+            <!-- Botón limpiar filtros -->
+            <div class="flex items-end w-full md:w-auto">
+              <button 
+                type="button" 
+                (click)="clearFilters()"
+                class="px-4 py-2 text-text-secondary hover:text-text-primary transition-colors duration-200"
+              >
+                <fa-icon [icon]="faTimes" class="mr-1"></fa-icon>
+                Limpiar filtros
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </form>
+    
+    <!-- Mensaje de error -->
+    @if (error) {
+      <div class="mb-6 p-4 rounded-lg bg-bordeaux-50 dark:bg-bordeaux-900 border border-bordeaux-300 dark:border-bordeaux-700 text-bordeaux-700 dark:text-bordeaux-300 flex items-center gap-3">
+        <fa-icon [icon]="faExclamationTriangle" class="text-bordeaux-500"></fa-icon>
+        <span>{{ error }}</span>
+      </div>
+    }
+    
+    <!-- Tabla de temas -->
+    <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
+      <!-- Encabezado de tabla -->
+      <div class="grid grid-cols-12 gap-4 p-4 bg-surface-alt text-text-secondary font-medium border-b border-border">
+        <div class="col-span-4 flex items-center cursor-pointer" (click)="toggleSort('titulo')">
+          <span>Título</span>
+          <fa-icon [icon]="faSort" class="ml-1 text-xs"></fa-icon>
+        </div>
+        <div class="col-span-3">Balotario</div>
+        <div class="col-span-2 text-center cursor-pointer" (click)="toggleSort('orden')">
+          <span>Orden</span>
+          <fa-icon [icon]="faSort" class="ml-1 text-xs"></fa-icon>
+        </div>
+        <div class="col-span-1 text-center">Estado</div>
+        <div class="col-span-2 text-center">Acciones</div>
+      </div>
+      
+      <!-- Spinner de carga -->
+      @if (isLoading) {
+        <div class="flex justify-center items-center p-8">
+          <fa-icon [icon]="faSpinner" class="text-2xl text-accent animate-spin"></fa-icon>
+          <span class="ml-2 text-text-secondary">Cargando temas...</span>
+        </div>
+      }
+      
+      <!-- Mensaje si no hay datos -->
+      @if (!isLoading && temas.length === 0) {
+        <div class="p-8 text-center text-text-secondary">
+          <p>No se encontraron temas.</p>
+          <p class="mt-2">
+            <a routerLink="/admin/temas/create" class="text-accent hover:text-accent-hover transition-colors duration-200">
+              Crear nuevo tema
+            </a>
+          </p>
+        </div>
+      }
+      
+      <!-- Filas de datos -->
+      @for (tema of temas; track tema.id) {
+        <div class="grid grid-cols-12 gap-4 p-4 border-b border-border hover:bg-surface-alt transition-colors duration-200">
+          <!-- Título -->
+          <div class="col-span-4 flex items-center">
+            <div>
+              <h3 class="font-medium text-text-primary">{{ tema.titulo }}</h3>
+              @if (tema.descripcion) {
+                <p class="text-sm text-text-secondary line-clamp-1 mt-1">
+                  {{ tema.descripcion }}
+                </p>
+              }
+            </div>
+          </div>
+          
+          <!-- Balotario -->
+          <div class="col-span-3 flex items-center text-text-secondary">
+            <span class="line-clamp-1">{{ tema.balotario?.nombre || 'Sin asignar' }}</span>
+          </div>
+          
+          <!-- Orden -->
+          <div class="col-span-2 flex justify-center items-center text-text-secondary font-medium">
+            {{ tema.orden }}
+          </div>
+          
+          <!-- Estado -->
+          <div class="col-span-1 flex justify-center items-center">
+            <button 
+              (click)="onToggleStatus(tema.id, tema.activo, tema.titulo)"
+              class="w-14 h-7 rounded-full relative focus:outline-none"
+              [ngClass]="tema.activo ? 'bg-green-600' : 'bg-slate-400'"
+              [attr.aria-label]="tema.activo ? 'Desactivar' : 'Activar'"
+              [attr.title]="tema.activo ? 'Desactivar' : 'Activar'"
+            >
+              <span 
+                class="block w-5 h-5 bg-white rounded-full transform transition-transform duration-200 shadow-md"
+                [ngClass]="tema.activo ? 'translate-x-8' : 'translate-x-1'"
+              ></span>
+            </button>
+          </div>
+          
+          <!-- Acciones -->
+          <div class="col-span-2 flex justify-center items-center gap-2">
+            <button 
+              (click)="onEditTema(tema.id)" 
+              class="p-2 text-slate-500 hover:text-accent transition-colors duration-200"
+              aria-label="Editar"
+              title="Editar"
+            >
+              <fa-icon [icon]="faEdit"></fa-icon>
+            </button>
+            
+            <button 
+              (click)="onDeleteTema(tema.id, tema.titulo)" 
+              class="p-2 text-slate-500 hover:text-bordeaux-500 transition-colors duration-200"
+              aria-label="Eliminar"
+              title="Eliminar"
+            >
+              <fa-icon [icon]="faTrash"></fa-icon>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+    
+    <!-- Paginación -->
+    @if (totalPages > 1) {
+      <div class="mt-6 flex justify-center">
+        <app-pagination 
+          [currentPage]="currentPage" 
+          [totalPages]="totalPages" 
+          (pageChange)="onPageChange($event)"
+        ></app-pagination>
+      </div>
+    }
+  </div>
