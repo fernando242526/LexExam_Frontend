@@ -30,6 +30,18 @@ export const routes: Routes = [
                 path: 'balotarios/edit/:id',
                 loadComponent: () => import('./components/balotarios-form/balotarios-form.component'),
             },
+            {
+                path: 'temas',
+                loadComponent: () => import('./temas/view-temas/view-temas.component'),
+            },
+            {
+                path: 'temas/create',
+                loadComponent: () => import('./components/temas-form/temas-form.component'),
+            },
+            {
+                path: 'temas/edit/:id',
+                loadComponent: () => import('./components/temas-form/temas-form.component'),
+            },
         ]
     }
 ]

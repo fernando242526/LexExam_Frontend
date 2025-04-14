@@ -4,7 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { Balotario, BalotarioSelect } from '../models/balotario.model';
 import { environment } from '../../environments/environment';
-import { PaginatedResponse } from '../models/api-response.model';
+import { ApiResponse, PaginatedResponse } from '../models/api-response.model';
 
 /**
  * Servicio para gestionar las operaciones CRUD de balotarios
@@ -70,7 +70,10 @@ export class BalotariosService {
       params = params.set('especialidadId', especialidadId);
     }
     
-    return this.http.get<BalotarioSelect[]>(`${this.apiUrl}/select`, { params });
+    return this.http.get<ApiResponse<BalotarioSelect[]>>(`${this.apiUrl}/select`, { params })
+    .pipe(
+      map(response => response.data)
+    );
   }
   
   /**
