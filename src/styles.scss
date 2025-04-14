@@ -64,4 +64,46 @@
   --color-warning-600: #78350f;
   --color-info-500: #1e40af;
   --color-info-600: #1e3a8a;
+
+  /* Variables para uso en temas - Estas se aplicarán en :root y html.dark */
+  --color-background: transparent;
+  --color-text-primary: transparent;
+  --color-text-secondary: transparent;
+  --color-border: transparent;
+  --color-accent: transparent;
+  --color-accent-hover: transparent;
+  --color-surface: transparent;
+  --color-surface-alt: transparent;
+}
+
+/* Base theme application */
+:root {
+  color-scheme: light;
+  --color-background: var(--color-slate-50);
+  --color-text-primary: var(--color-slate-900);
+  --color-text-secondary: var(--color-slate-700);
+  --color-border: var(--color-slate-200);
+  --color-accent: var(--color-navy-600);
+  --color-accent-hover: var(--color-navy-700);
+  --color-surface: white;
+  --color-surface-alt: var(--color-slate-100);
+}
+
+/* Dark theme application when dark class is present on html element */
+html.dark {
+  color-scheme: dark;
+  --color-background: var(--color-slate-950);
+  --color-text-primary: var(--color-slate-100);
+  --color-text-secondary: var(--color-slate-300);
+  --color-border: var(--color-slate-800);
+  --color-accent: var(--color-navy-400);
+  --color-accent-hover: var(--color-navy-300);
+  --color-surface: var(--color-slate-900);
+  --color-surface-alt: var(--color-slate-800);
+}
+
+/* Basic styles using theme variables */
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
 }

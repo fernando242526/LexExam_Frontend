@@ -1,0 +1,54 @@
+<!-- src/app/shared/components/layout/admin-sidebar/admin-sidebar.component.html -->
+<div class="h-screen sticky top-0 left-0 flex flex-col bg-surface border-r border-border">
+  <!-- Logo y título -->
+  <div class="p-4 border-b border-border">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-white">
+        <span class="text-lg font-bold">LE</span>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-text-primary">LexExam</h1>
+        <p class="text-xs text-text-secondary">Panel Administrativo</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menú de navegación -->
+  <nav class="flex-1 overflow-y-auto py-6 px-3">
+    <ul class="space-y-1">
+      @for (item of navItems; track item.title) {
+      <li>
+        <a [routerLink]="item.route" [class.bg-accent]="isActive(item.route)" [class.text-white]="isActive(item.route)"
+          [class.text-text-primary]="!isActive(item.route)" [class.hover:bg-accent-hover]="!isActive(item.route)"
+          [class.hover:text-white]="!isActive(item.route)"
+          class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200">
+          <fa-icon [icon]="item.icon" class="w-5 h-5"></fa-icon>
+          <span>{{ item.title }}</span>
+        </a>
+      </li>
+      }
+    </ul>
+  </nav>
+
+  <!-- Footer con botones de acción -->
+  <div class="p-4 border-t border-border">
+    <!-- Toggle de tema -->
+    <button (click)="themeService.toggleTheme()"
+      class="flex items-baseline gap-3 w-full px-4 py-3 rounded-lg text-text-secondary hover:bg-surface-alt transition-colors duration-200 mb-3">
+      @if (themeService.isDarkMode$()) {
+      <fa-icon [icon]="sun" class="w-5 h-5 text-yellow-400"></fa-icon>
+      <span>Modo Claro</span>
+      } @else {
+      <fa-icon [icon]="moon" class="w-5 h-5"></fa-icon>
+      <span>Modo Oscuro</span>
+      }
+    </button>
+
+    <!-- Botón de cerrar sesión -->
+    <button (click)="onLogout()"
+      class="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-bordeaux-500 hover:bg-bordeaux-50 dark:hover:bg-bordeaux-900 transition-colors duration-200">
+      <fa-icon [icon]="logout" class="w-5 h-5"></fa-icon>
+      <span>Cerrar Sesión</span>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,135 @@
+<!-- src/app/features/admin/especialidades/pages/especialidades-list/especialidades-list.component.html -->
+<div class="p-6 max-w-full">
+    <!-- Encabezado de sección -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-text-primary">Especialidades Jurídicas</h1>
+      <p class="text-text-secondary mt-1">Gestione las especialidades del sistema</p>
+    </div>
+    
+    <!-- Barra de acciones -->
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+      <!-- Búsqueda -->
+      <div class="relative w-full md:w-64">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-text-secondary">
+          <fa-icon [icon]="faSearch"></fa-icon>
+        </span>
+        <input 
+          type="text"
+          [formControl]="searchControl"
+          placeholder="Buscar especialidad..." 
+          class="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+        >
+      </div>
+      
+      <!-- Botón agregar -->
+      <a 
+        routerLink="/admin/especialidades/create" 
+        class="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors duration-200 whitespace-nowrap"
+      >
+        <fa-icon [icon]="faPlus"></fa-icon>
+        <span>Nueva Especialidad</span>
+      </a>
+    </div>
+    
+    <!-- Mensaje de error -->
+    @if (error) {
+      <div class="mb-6 p-4 rounded-lg bg-bordeaux-50 dark:bg-bordeaux-900 border border-bordeaux-300 dark:border-bordeaux-700 text-bordeaux-700 dark:text-bordeaux-300 flex items-center gap-3">
+        <fa-icon [icon]="faExclamationTriangle" class="text-bordeaux-500"></fa-icon>
+        <span>{{ error }}</span>
+      </div>
+    }
+    
+    <!-- Tabla de especialidades -->
+    <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
+      <!-- Encabezado de tabla -->
+      <div class="grid grid-cols-12 gap-4 p-4 bg-surface-alt text-text-secondary font-medium border-b border-border">
+        <div class="col-span-5 md:col-span-4">Nombre</div>
+        <div class="col-span-3 md:col-span-6 hidden md:block">Descripción</div>
+        <div class="col-span-4 md:col-span-1 text-center">Estado</div>
+        <div class="col-span-3 md:col-span-1 text-center">Acciones</div>
+      </div>
+      
+      <!-- Spinner de carga -->
+      @if (isLoading) {
+        <div class="flex justify-center items-center p-8">
+          <fa-icon [icon]="faSpinner"  class="text-2xl text-accent"></fa-icon>
+          <span class="ml-2 text-text-secondary">Cargando especialidades...</span>
+        </div>
+      }
+      
+      <!-- Mensaje si no hay datos -->
+      @if (!isLoading && especialidades.length === 0) {
+        <div class="p-8 text-center text-text-secondary">
+          <p>No se encontraron especialidades.</p>
+          <p class="mt-2">
+            <a routerLink="/admin/especialidades/create" class="text-accent hover:text-accent-hover transition-colors duration-200">
+              Crear nueva especialidad
+            </a>
+          </p>
+        </div>
+      }
+      
+      <!-- Filas de datos -->
+      @for (especialidad of especialidades; track especialidad.id) {
+        <div class="grid grid-cols-12 gap-4 p-4 border-b border-border hover:bg-surface-alt transition-colors duration-200">
+          <!-- Nombre -->
+          <div class="col-span-5 md:col-span-4 flex items-center font-medium text-text-primary">
+            {{ especialidad.nombre }}
+          </div>
+          
+          <!-- Descripción -->
+          <div class="col-span-3 md:col-span-6 hidden md:block text-text-secondary line-clamp-2">
+            {{ especialidad.descripcion || 'Sin descripción' }}
+          </div>
+          
+          <!-- Estado -->
+          <div class="col-span-4 md:col-span-1 flex justify-center items-center">
+            <button 
+              (click)="onToggleStatus(especialidad.id, especialidad.activo)"
+              class="w-14 h-7 rounded-full relative focus:outline-none"
+              [ngClass]="especialidad.activo ? 'bg-green-600' : 'bg-slate-400'"
+              [attr.aria-label]="especialidad.activo ? 'Desactivar' : 'Activar'"
+              [attr.title]="especialidad.activo ? 'Desactivar' : 'Activar'"
+            >
+              <span 
+                class="block w-5 h-5 bg-white rounded-full transform transition-transform duration-200 shadow-md"
+                [ngClass]="especialidad.activo ? 'translate-x-8' : 'translate-x-1'"
+              ></span>
+            </button>
+          </div>
+          
+          <!-- Acciones -->
+          <div class="col-span-3 md:col-span-1 flex justify-center items-center gap-2">
+            <button 
+              (click)="onEditEspecialidad(especialidad.id)" 
+              class="p-2 text-slate-500 hover:text-accent transition-colors duration-200"
+              aria-label="Editar"
+              title="Editar"
+            >
+              <fa-icon [icon]="faEdit"></fa-icon>
+            </button>
+            
+            <button 
+              (click)="onDeleteEspecialidad(especialidad.id, especialidad.nombre)" 
+              class="p-2 text-slate-500 hover:text-bordeaux-500 transition-colors duration-200"
+              aria-label="Eliminar"
+              title="Eliminar"
+            >
+              <fa-icon [icon]="faTrash"></fa-icon>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+    
+    <!-- Paginación -->
+    @if (totalPages > 1) {
+      <div class="mt-6 flex justify-center">
+        <app-pagination 
+          [currentPage]="currentPage" 
+          [totalPages]="totalPages" 
+          (pageChange)="onPageChange($event)"
+        ></app-pagination>
+      </div>
+    }
+  </div>

@@ -1,0 +1,91 @@
+<!-- src/app/features/admin/especialidades/pages/especialidades-form/especialidades-form.component.html -->
+<div class="p-6 max-w-7xl mx-auto">
+  <!-- Encabezado de sección -->
+  <div class="mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <h1 class="text-2xl font-bold text-text-primary">{{ title }}</h1>
+      <button (click)="goBack()"
+        class="flex items-center gap-2 px-4 py-2 bg-surface-alt hover:bg-border text-text-secondary rounded-lg transition-colors duration-200">
+        <fa-icon [icon]="faArrowLeft"></fa-icon>
+        <span>Volver</span>
+      </button>
+    </div>
+    <p class="text-text-secondary mt-1">
+      {{ isEditing ? 'Actualice la información de la especialidad jurídica' : 'Complete el formulario para crear una nueva especialidad jurídica' }}
+    </p>
+  </div>
+
+  <!-- Mensaje de error -->
+  @if (error) {
+  <div
+    class="mb-6 p-4 rounded-lg bg-bordeaux-50 dark:bg-bordeaux-900 border border-bordeaux-300 dark:border-bordeaux-700 text-bordeaux-700 dark:text-bordeaux-300 flex items-center gap-3">
+    <fa-icon [icon]="faExclamationTriangle" class="text-bordeaux-500"></fa-icon>
+    <span>{{ error }}</span>
+  </div>
+  }
+
+  <!-- Formulario -->
+  <form [formGroup]="especialidadForm" (ngSubmit)="onSubmit()"
+    class="bg-surface rounded-xl shadow-sm border border-border p-6">
+    <!-- Campo nombre -->
+    <div class="mb-6">
+      <label for="nombre" class="block text-sm font-medium text-text-secondary mb-2">
+        Nombre <span class="text-bordeaux-500">*</span>
+      </label>
+      <input type="text" id="nombre" formControlName="nombre"
+        class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+        placeholder="Ej. Derecho Constitucional"
+        [ngClass]="{'border-bordeaux-500': especialidadForm.get('nombre')?.invalid && especialidadForm.get('nombre')?.touched}">
+      @if (especialidadForm.get('nombre')?.invalid && especialidadForm.get('nombre')?.touched) {
+      <p class="mt-2 text-sm text-bordeaux-500">
+        <span *ngIf="especialidadForm.get('nombre')?.errors?.['required']">El nombre es obligatorio.</span>
+        <span *ngIf="especialidadForm.get('nombre')?.errors?.['maxlength']">El nombre no puede exceder los 100
+          caracteres.</span>
+      </p>
+      }
+    </div>
+
+    <!-- Campo descripción -->
+    <div class="mb-6">
+      <label for="descripcion" class="block text-sm font-medium text-text-secondary mb-2">
+        Descripción <span class="text-text-secondary text-xs">(opcional)</span>
+      </label>
+      <textarea id="descripcion" formControlName="descripcion" rows="4"
+        class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary resize-none"
+        placeholder="Escriba una descripción breve de la especialidad..."></textarea>
+    </div>
+
+    <!-- Campo activo (solo visible en modo edición) -->
+    <div class="mb-6">
+      <div class="flex items-center">
+        <input type="checkbox" id="activo" formControlName="activo"
+          class="w-4 h-4 text-accent bg-surface-alt border-border rounded focus:ring-accent focus:ring-2">
+        <label for="activo" class="ml-2 text-sm font-medium text-text-secondary">
+          Especialidad activa
+        </label>
+      </div>
+      <p class="mt-1 text-xs text-text-secondary">
+        Las especialidades inactivas no aparecerán en los listados para los usuarios.
+      </p>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="flex justify-end mt-8">
+      <button type="button" (click)="goBack()"
+        class="px-4 py-2 mr-3 border border-border rounded-lg text-text-secondary hover:bg-surface-alt transition-colors duration-200">
+        Cancelar
+      </button>
+
+      <button type="submit" [disabled]="isSubmitting"
+        class="flex items-center gap-2 px-6 py-2 bg-accent hover:bg-accent-hover text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed">
+        @if (isSubmitting) {
+        <fa-icon [icon]="faSpinner"></fa-icon>
+        <span>Guardando...</span>
+        } @else {
+        <fa-icon [icon]="faSave"></fa-icon>
+        <span>{{ submitButtonText }}</span>
+        }
+      </button>
+    </div>
+  </form>
+</div>
