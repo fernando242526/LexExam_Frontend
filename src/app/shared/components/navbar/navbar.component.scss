@@ -1,0 +1,41 @@
+/* src/app/shared/components/navbar/navbar.component.scss */
+:host {
+  display: block;
+}
+
+header {
+//   background-color: rgba(var(--color-background), 0.9);
+//   backdrop-filter: blur(10px);
+  box-shadow: 0 0 0 transparent;
+
+  &.scrolled {
+    background-color: rgba(var(--color-surface), 0.98);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Efecto de hover para los enlaces de navegación */
+a {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--color-accent);
+    transition: width 0.3s ease;
+  }
+
+  &:hover::after,
+  &.active::after {
+    width: 100%;
+  }
+}
+
+/* Animación para el menú móvil */
+[class*="translate-x-"] {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

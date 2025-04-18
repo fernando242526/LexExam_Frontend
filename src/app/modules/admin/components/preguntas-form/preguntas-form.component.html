@@ -1,0 +1,276 @@
+<div class="p-6 max-w-7xl mx-auto">
+  <!-- Encabezado -->
+  <div class="mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <h1 class="text-2xl font-bold text-text-primary">Cargar Preguntas</h1>
+      <button (click)="goBack()"
+        class="flex items-center gap-2 px-4 py-2 bg-surface-alt hover:bg-border text-text-secondary rounded-lg transition-colors duration-200">
+        <fa-icon [icon]="faArrowLeft"></fa-icon>
+        <span>Volver</span>
+      </button>
+    </div>
+    <p class="text-text-secondary mt-1">
+      Cree múltiples preguntas para un tema específico
+    </p>
+  </div>
+
+  <!-- Mensaje de error general -->
+  @if (error) {
+  <div
+    class="mb-6 p-4 rounded-lg bg-bordeaux-50 dark:bg-bordeaux-900 border border-bordeaux-300 dark:border-bordeaux-700 text-bordeaux-700 dark:text-bordeaux-300 flex items-center gap-3">
+    <fa-icon [icon]="faExclamationTriangle" class="text-bordeaux-500"></fa-icon>
+    <span>{{ error }}</span>
+  </div>
+  }
+
+  <!-- Formulario -->
+  <form [formGroup]="preguntasForm" (ngSubmit)="onSubmit()">
+    <!-- Selección del tema (en cascada) -->
+    <div class="bg-surface rounded-xl shadow-sm border border-border p-6 mb-6">
+      <h2 class="text-lg font-semibold text-text-primary mb-4">Selección de Tema</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Especialidad -->
+        <div>
+          <label for="especialidadId" class="block text-sm font-medium text-text-secondary mb-2">
+            Especialidad <span class="text-bordeaux-500">*</span>
+          </label>
+          <select id="especialidadId" formControlName="especialidadId"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+            [class.border-bordeaux-500]="preguntasForm.get('especialidadId')?.invalid && preguntasForm.get('especialidadId')?.touched"
+            [attr.disabled]="isLoadingEspecialidades ? true : null">
+            <option value="" disabled>{{ isLoadingEspecialidades ? 'Cargando...' : 'Seleccione especialidad' }}</option>
+            @for (especialidad of especialidades; track especialidad.id) {
+            <option [value]="especialidad.id">{{ especialidad.nombre }}</option>
+            }
+          </select>
+          @if (preguntasForm.get('especialidadId')?.invalid && preguntasForm.get('especialidadId')?.touched) {
+          <p class="mt-2 text-sm text-bordeaux-500">
+            {{ validationMessages.especialidadId.required }}
+          </p>
+          }
+        </div>
+
+        <!-- Balotario -->
+        <div>
+          <label for="balotarioId" class="block text-sm font-medium text-text-secondary mb-2">
+            Balotario <span class="text-bordeaux-500">*</span>
+          </label>
+          <select id="balotarioId" formControlName="balotarioId"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+            [class.border-bordeaux-500]="preguntasForm.get('balotarioId')?.invalid && preguntasForm.get('balotarioId')?.touched">
+            <option value="" disabled>
+              @if (isLoadingBalotarios) {
+              Cargando balotarios...
+              } @else if (!preguntasForm.get('especialidadId')?.value) {
+              Primero seleccione una especialidad
+              } @else if (balotarios.length === 0) {
+              No hay balotarios para esta especialidad
+              } @else {
+              Seleccione un balotario
+              }
+            </option>
+            @for (balotario of balotarios; track balotario.id) {
+            <option [value]="balotario.id">{{ balotario.nombre }}</option>
+            }
+          </select>
+          @if (preguntasForm.get('balotarioId')?.invalid && preguntasForm.get('balotarioId')?.touched) {
+          <p class="mt-2 text-sm text-bordeaux-500">
+            {{ validationMessages.balotarioId.required }}
+          </p>
+          }
+        </div>
+
+        <!-- Tema -->
+        <div>
+          <label for="temaId" class="block text-sm font-medium text-text-secondary mb-2">
+            Tema <span class="text-bordeaux-500">*</span>
+          </label>
+          <select id="temaId" formControlName="temaId"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+            [class.border-bordeaux-500]="preguntasForm.get('temaId')?.invalid && preguntasForm.get('temaId')?.touched">
+            <option value="" disabled>
+              @if (isLoadingTemas) {
+              Cargando temas...
+              } @else if (!preguntasForm.get('balotarioId')?.value) {
+              Primero seleccione un balotario
+              } @else if (temas.length === 0) {
+              No hay temas para este balotario
+              } @else {
+              Seleccione un tema
+              }
+            </option>
+            @for (tema of temas; track tema.id) {
+            <option [value]="tema.id">{{ tema.titulo }}</option>
+            }
+          </select>
+          @if (preguntasForm.get('temaId')?.invalid && preguntasForm.get('temaId')?.touched) {
+          <p class="mt-2 text-sm text-bordeaux-500">
+            {{ validationMessages.temaId.required }}
+          </p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Preguntas -->
+    <div formArrayName="preguntas" class="space-y-8">
+      <!-- Encabezado de Preguntas -->
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-text-primary">Preguntas</h2>
+        <button type="button" (click)="addPregunta()"
+          class="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors duration-200">
+          <fa-icon [icon]="faPlus"></fa-icon>
+          <span>Agregar Pregunta</span>
+        </button>
+      </div>
+
+      <!-- Lista de preguntas -->
+      @for (pregunta of preguntas.controls; track $index) {
+      <div [formGroupName]="$index" class="bg-surface rounded-xl shadow-sm border border-border p-6 mb-6 relative">
+        <!-- Número de pregunta y botón eliminar -->
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-md font-medium text-text-primary">Pregunta #{{ $index + 1 }}</h3>
+          <button type="button" (click)="removePregunta($index)"
+            class="p-2 text-text-secondary hover:text-bordeaux-500 transition-colors duration-200">
+            <fa-icon [icon]="faTrash"></fa-icon>
+          </button>
+        </div>
+
+        <!-- Texto de la pregunta -->
+        <div class="mb-4">
+          <label [for]="'texto-' + $index" class="block text-sm font-medium text-text-secondary mb-2">
+            Texto de la pregunta <span class="text-bordeaux-500">*</span>
+          </label>
+          <textarea [id]="'texto-' + $index" formControlName="texto" rows="3"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary resize-none"
+            [class.border-bordeaux-500]="pregunta.get('texto')?.invalid && pregunta.get('texto')?.touched"
+            placeholder="Escriba la pregunta aquí..."></textarea>
+          @if (pregunta.get('texto')?.invalid && pregunta.get('texto')?.touched) {
+          <p class="mt-2 text-sm text-bordeaux-500">
+            @if (pregunta.get('texto')?.errors?.['required']) {
+            {{ validationMessages.pregunta.texto.required }}
+            } @else if (pregunta.get('texto')?.errors?.['minlength']) {
+            {{ validationMessages.pregunta.texto.minlength }}
+            }
+          </p>
+          }
+        </div>
+
+        <!-- Explicación (opcional) -->
+        <div class="mb-4">
+          <label [for]="'explicacion-' + $index" class="block text-sm font-medium text-text-secondary mb-2">
+            Explicación <span class="text-text-secondary text-xs">(opcional)</span>
+          </label>
+          <textarea [id]="'explicacion-' + $index" formControlName="explicacion" rows="2"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary resize-none"
+            placeholder="Escriba una explicación adicional (opcional)..."></textarea>
+        </div>
+
+        <!-- Nivel de dificultad -->
+        <div class="mb-6">
+          <label [for]="'dificultad-' + $index" class="block text-sm font-medium text-text-secondary mb-2">
+            Nivel de dificultad
+          </label>
+          <select [id]="'dificultad-' + $index" formControlName="nivelDificultad"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary">
+            <option [value]="nivelDificultadEnum.FACIL">Fácil</option>
+            <option [value]="nivelDificultadEnum.MEDIO">Medio</option>
+            <option [value]="nivelDificultadEnum.DIFICIL">Difícil</option>
+          </select>
+        </div>
+
+        <!-- Respuestas -->
+        <div class="mb-4">
+          <div class="flex items-center justify-between mb-3">
+            <label class="block text-sm font-medium text-text-secondary">
+              Respuestas <span class="text-bordeaux-500">*</span>
+            </label>
+            <button type="button" (click)="addRespuesta($index)"
+              class="flex items-center gap-1 px-3 py-1 text-sm bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-text-primary rounded transition-colors duration-200">
+              <fa-icon [icon]="faPlus" size="xs"></fa-icon>
+              <span>Agregar Respuesta</span>
+            </button>
+          </div>
+
+          <!-- Lista de respuestas -->
+          <div formArrayName="respuestas" class="space-y-3">
+            @if (getRespuestas($index).controls.length === 0) {
+            <p class="text-text-secondary text-sm italic">No hay respuestas. Agregue al menos dos respuestas.</p>
+            }
+
+            @for (respuesta of getRespuestas($index).controls; track $index2; let $index2 = $index) {
+            <div [formGroupName]="$index2"
+              class="flex items-start gap-3 p-3 bg-surface-alt rounded-lg border border-border">
+              <!-- Checkbox de correcta -->
+              <div class="flex-shrink-0 pt-2">
+                <input type="radio" [id]="'correcta-' + $index + '-' + $index2" formControlName="esCorrecta"
+                  (change)="onCorrectoChange($index, $index2, $event)"
+                  class="w-4 h-4 text-accent bg-surface-alt border-border rounded focus:ring-accent focus:ring-2">
+              </div>
+
+              <!-- Texto de la respuesta -->
+              <div class="flex-grow">
+                <div class="flex">
+                  <label [for]="'correcta-' + $index + '-' + $index2"
+                    class="text-sm font-medium text-text-primary mb-1 cursor-pointer">
+                    {{ respuesta.get('esCorrecta')?.value ? 'Respuesta Correcta' : 'Respuesta Incorrecta' }}
+                  </label>
+                </div>
+                <input type="text" formControlName="texto"
+                  class="w-full px-3 py-2 border border-border rounded focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface text-text-primary"
+                  [class.border-bordeaux-500]="respuesta.get('texto')?.invalid && respuesta.get('texto')?.touched"
+                  placeholder="Texto de la respuesta">
+                @if (respuesta.get('texto')?.invalid && respuesta.get('texto')?.touched) {
+                <p class="mt-1 text-sm text-bordeaux-500">
+                  {{ validationMessages.respuesta.texto.required }}
+                </p>
+                }
+              </div>
+
+              <!-- Botón eliminar respuesta -->
+              <button type="button" (click)="removeRespuesta($index, $index2)"
+                class="flex-shrink-0 p-2 text-text-secondary hover:text-bordeaux-500 transition-colors duration-200 mt-3">
+                <fa-icon [icon]="faTimes" size="xs"></fa-icon>
+              </button>
+            </div>
+            }
+          </div>
+
+          <!-- Mensaje de error para respuestas -->
+          @if (pregunta.get('respuestas')?.invalid && pregunta.get('respuestas')?.touched) {
+          <p class="mt-2 text-sm text-bordeaux-500">
+            {{ validationMessages.pregunta.respuestas.minlength }}
+          </p>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- Mensaje de error si no hay preguntas -->
+      @if (preguntas.invalid && preguntas.touched) {
+      <p class="text-bordeaux-500 text-sm">
+        {{ validationMessages.preguntas.minlength }}
+      </p>
+      }
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="flex justify-end gap-3 mt-8">
+      <button type="button" (click)="goBack()"
+        class="px-6 py-3 border border-border rounded-lg text-text-secondary hover:bg-surface-alt transition-colors duration-200">
+        Cancelar
+      </button>
+      <button type="submit" [disabled]="isSubmitting"
+        class="px-6 py-3 bg-accent hover:bg-accent-hover text-white font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+        @if (isSubmitting) {
+        <fa-icon [icon]="faSpinner" class="animate-spin"></fa-icon>
+        <span>Guardando...</span>
+        } @else {
+        <fa-icon [icon]="faSave"></fa-icon>
+        <span>Guardar Preguntas</span>
+        }
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,58 @@
+/* src/app/modules/web/home/home.component.scss */
+/* Hero section */
+.hero-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-background) 0%,
+    var(--color-surface) 100%
+  );
+}
+
+/* Animaciones y efectos hover */
+.hover\:transform {
+  transition: transform 0.3s ease-out;
+
+  &:hover {
+    transform: translateY(-10px);
+  }
+}
+
+.aspect-w-16 {
+  position: relative;
+  padding-bottom: 62.5%; /* 10/16 = 0.625 */
+}
+
+.aspect-h-10 {
+  position: relative;
+}
+
+.aspect-w-16 > *,
+.aspect-h-10 > * {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Efecto de resaltado para los pasos */
+[class*="rounded-full"] {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 2px rgba(var(--color-accent), 0.3);
+  }
+}
+
+/* Animación para testimonios */
+.bg-surface-alt {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  }
+}

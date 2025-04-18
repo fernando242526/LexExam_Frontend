@@ -1,0 +1,95 @@
+<!-- src/app/shared/components/navbar/navbar.component.html -->
+<header [class.scrolled]="isScrolled" class="fixed top-0 left-0 w-full z-50 transition-all duration-300">
+    <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+        <!-- Logo -->
+        <a routerLink="/" class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-white">
+                <span class="text-lg font-bold">LE</span>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-text-primary">LexExam</h1>
+                <p class="text-xs text-text-secondary">Tu camino al éxito legal</p>
+            </div>
+        </a>
+
+        <!-- Enlaces de navegación (escritorio) -->
+        <div class="hidden lg:flex items-center space-x-8">
+            @for (link of navLinks; track link.path) {
+            <a [routerLink]="link.path" routerLinkActive="text-accent font-medium"
+                [routerLinkActiveOptions]="{exact: link.path === '/'}"
+                class="text-text-secondary hover:text-accent transition-colors duration-200">
+                {{ link.title }}
+            </a>
+            }
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="hidden lg:flex items-center space-x-4">
+            <app-theme-toggle></app-theme-toggle>
+
+            @if (!isAuthenticated) {
+            <a routerLink="/auth/login"
+                class="px-5 py-2 rounded-lg border border-accent text-accent hover:bg-accent hover:text-white transition-colors duration-200">
+                Iniciar sesión
+            </a>
+            <a routerLink="/auth/register"
+                class="px-5 py-2 rounded-lg bg-accent text-white hover:bg-accent-hover transition-colors duration-200">
+                Registrarse
+            </a>
+            } @else {
+            <a routerLink="/user/dashboard"
+                class="px-5 py-2 rounded-lg border border-accent text-accent hover:bg-accent hover:text-white transition-colors duration-200">
+                Mi cuenta
+                <fa-icon [icon]="faUser" class="ml-2"></fa-icon>
+            </a>
+            }
+        </div>
+
+        <!-- Botón de menú móvil -->
+        <button (click)="toggleMenu()" class="lg:hidden text-text-primary focus:outline-none">
+            <fa-icon [icon]="isMenuOpen ? faTimes : faBars" class="text-2xl"></fa-icon>
+        </button>
+    </nav>
+
+    <!-- Menú móvil -->
+    <div class="lg:hidden fixed inset-0 bg-background z-40 transform transition-transform duration-300"
+        [class.translate-x-0]="isMenuOpen" [class.translate-x-full]="!isMenuOpen">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col space-y-6">
+                @for (link of navLinks; track link.path) {
+                <a [routerLink]="link.path" routerLinkActive="text-accent font-medium"
+                    [routerLinkActiveOptions]="{exact: link.path === '/'}" (click)="closeMenu()"
+                    class="text-lg text-text-primary hover:text-accent transition-colors duration-200">
+                    {{ link.title }}
+                </a>
+                }
+
+                <div class="pt-6 border-t border-border flex flex-col space-y-4">
+                    <div class="flex justify-center">
+                        <app-theme-toggle></app-theme-toggle>
+                    </div>
+
+                    @if (!isAuthenticated) {
+                    <a routerLink="/auth/login" (click)="closeMenu()"
+                        class="w-full py-3 text-center rounded-lg border border-accent text-accent hover:bg-accent hover:text-white transition-colors duration-200">
+                        Iniciar sesión
+                    </a>
+                    <a routerLink="/auth/register" (click)="closeMenu()"
+                        class="w-full py-3 text-center rounded-lg bg-accent text-white hover:bg-accent-hover transition-colors duration-200">
+                        Registrarse
+                    </a>
+                    } @else {
+                    <a routerLink="/user/dashboard" (click)="closeMenu()"
+                        class="w-full py-3 text-center rounded-lg bg-accent text-white hover:bg-accent-hover transition-colors duration-200">
+                        Mi cuenta
+                        <fa-icon [icon]="faUser" class="ml-2"></fa-icon>
+                    </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Espacio para compensar el navbar fijo -->
+<div class="h-20"></div>

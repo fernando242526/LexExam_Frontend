@@ -1,0 +1,216 @@
+<!-- src/app/modules/admin/usuarios/components/usuarios-form/usuarios-form.component.html -->
+<div class="p-6 max-w-7xl mx-auto">
+    <!-- Encabezado de sección -->
+    <div class="mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 class="text-2xl font-bold text-text-primary">{{ title }}</h1>
+        <button (click)="goBack()"
+          class="flex items-center gap-2 px-4 py-2 bg-surface-alt hover:bg-border text-text-secondary rounded-lg transition-colors duration-200">
+          <fa-icon [icon]="faArrowLeft"></fa-icon>
+          <span>Volver</span>
+        </button>
+      </div>
+      <p class="text-text-secondary mt-1">
+        {{ isEditing ? 'Detalle del usuario' : 'Complete el formulario para crear un nuevo usuario' }}
+      </p>
+    </div>
+  
+    <!-- Mensaje de error -->
+    @if (error) {
+    <div
+      class="mb-6 p-4 rounded-lg bg-bordeaux-50 dark:bg-bordeaux-900 border border-bordeaux-300 dark:border-bordeaux-700 text-bordeaux-700 dark:text-bordeaux-300 flex items-center gap-3">
+      <fa-icon [icon]="faExclamationTriangle" class="text-bordeaux-500"></fa-icon>
+      <span>{{ error }}</span>
+    </div>
+    }
+  
+    <!-- Formulario -->
+    <form [formGroup]="usuarioForm" (ngSubmit)="onSubmit()"
+      class="bg-surface rounded-xl shadow-sm border border-border p-6">
+      
+      <!-- Datos personales -->
+      <div class="mb-5">
+        <h2 class="text-lg font-medium text-text-primary mb-4">Datos personales</h2>
+        
+        <!-- Nombre y apellidos en una fila -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+          <!-- Campo nombre -->
+          <div>
+            <label for="nombre" class="block text-sm font-medium text-text-secondary mb-2">
+              Nombre <span class="text-bordeaux-500">*</span>
+            </label>
+            <input type="text" id="nombre" formControlName="nombre"
+              class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+              placeholder="Ej. Juan"
+              [ngClass]="{'border-bordeaux-500': usuarioForm.get('nombre')?.invalid && usuarioForm.get('nombre')?.touched}"
+              [readonly]="isEditing">
+            @if (usuarioForm.get('nombre')?.invalid && usuarioForm.get('nombre')?.touched) {
+            <p class="mt-2 text-sm text-bordeaux-500">
+              <span *ngIf="usuarioForm.get('nombre')?.errors?.['required']">El nombre es obligatorio.</span>
+              <span *ngIf="usuarioForm.get('nombre')?.errors?.['maxlength']">El nombre no puede exceder los 100 caracteres.</span>
+            </p>
+            }
+          </div>
+  
+          <!-- Campo apellidos -->
+          <div>
+            <label for="apellidos" class="block text-sm font-medium text-text-secondary mb-2">
+              Apellidos <span class="text-bordeaux-500">*</span>
+            </label>
+            <input type="text" id="apellidos" formControlName="apellidos"
+              class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+              placeholder="Ej. Pérez García"
+              [ngClass]="{'border-bordeaux-500': usuarioForm.get('apellidos')?.invalid && usuarioForm.get('apellidos')?.touched}"
+              [readonly]="isEditing">
+            @if (usuarioForm.get('apellidos')?.invalid && usuarioForm.get('apellidos')?.touched) {
+            <p class="mt-2 text-sm text-bordeaux-500">
+              <span *ngIf="usuarioForm.get('apellidos')?.errors?.['required']">Los apellidos son obligatorios.</span>
+              <span *ngIf="usuarioForm.get('apellidos')?.errors?.['maxlength']">Los apellidos no pueden exceder los 100 caracteres.</span>
+            </p>
+            }
+          </div>
+        </div>
+      </div>
+  
+      <!-- Datos de acceso -->
+      <div class="mb-5">
+        <h2 class="text-lg font-medium text-text-primary mb-4">Datos de acceso</h2>
+        
+        <!-- Email y nombre de usuario -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+          <!-- Campo email -->
+          <div>
+            <label for="email" class="block text-sm font-medium text-text-secondary mb-2">
+              Correo electrónico <span class="text-bordeaux-500">*</span>
+            </label>
+            <input type="email" id="email" formControlName="email"
+              class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+              placeholder="Ej. ejemplo@correo.com"
+              [ngClass]="{'border-bordeaux-500': usuarioForm.get('email')?.invalid && usuarioForm.get('email')?.touched}"
+              [readonly]="isEditing">
+            @if (usuarioForm.get('email')?.invalid && usuarioForm.get('email')?.touched) {
+            <p class="mt-2 text-sm text-bordeaux-500">
+              <span *ngIf="usuarioForm.get('email')?.errors?.['required']">El correo electrónico es obligatorio.</span>
+              <span *ngIf="usuarioForm.get('email')?.errors?.['email']">El correo electrónico debe tener un formato válido.</span>
+              <span *ngIf="usuarioForm.get('email')?.errors?.['maxlength']">El correo electrónico no puede exceder los 255 caracteres.</span>
+            </p>
+            }
+          </div>
+  
+          <!-- Campo username -->
+          <div>
+            <label for="username" class="block text-sm font-medium text-text-secondary mb-2">
+              Nombre de usuario <span class="text-bordeaux-500">*</span>
+            </label>
+            <input type="text" id="username" formControlName="username"
+              class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+              placeholder="Ej. juanperez"
+              [ngClass]="{'border-bordeaux-500': usuarioForm.get('username')?.invalid && usuarioForm.get('username')?.touched}"
+              [readonly]="isEditing">
+            @if (usuarioForm.get('username')?.invalid && usuarioForm.get('username')?.touched) {
+            <p class="mt-2 text-sm text-bordeaux-500">
+              <span *ngIf="usuarioForm.get('username')?.errors?.['required']">El nombre de usuario es obligatorio.</span>
+              <span *ngIf="usuarioForm.get('username')?.errors?.['minlength']">El nombre de usuario debe tener al menos 4 caracteres.</span>
+              <span *ngIf="usuarioForm.get('username')?.errors?.['maxlength']">El nombre de usuario no puede exceder los 50 caracteres.</span>
+              <span *ngIf="usuarioForm.get('username')?.errors?.['pattern']">El nombre de usuario solo puede contener letras, números, puntos, guiones bajos y guiones.</span>
+            </p>
+            }
+          </div>
+        </div>
+  
+        <!-- Campo contraseña (solo visible en creación) -->
+        @if (!isEditing) {
+        <div class="mb-5">
+          <label for="password" class="block text-sm font-medium text-text-secondary mb-2">
+            Contraseña <span class="text-bordeaux-500">*</span>
+          </label>
+          <div class="relative">
+            <input 
+              [type]="showPassword ? 'text' : 'password'" 
+              id="password" 
+              formControlName="password"
+              class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+              placeholder="Ingrese una contraseña segura"
+              [ngClass]="{'border-bordeaux-500': usuarioForm.get('password')?.invalid && usuarioForm.get('password')?.touched}">
+            <button 
+              type="button" 
+              (click)="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
+              <fa-icon [icon]="showPassword ? faEyeSlash : faEye"></fa-icon>
+            </button>
+          </div>
+          @if (usuarioForm.get('password')?.invalid && usuarioForm.get('password')?.touched) {
+          <p class="mt-2 text-sm text-bordeaux-500">
+            <span *ngIf="usuarioForm.get('password')?.errors?.['required']">La contraseña es obligatoria.</span>
+            <span *ngIf="usuarioForm.get('password')?.errors?.['minlength']">La contraseña debe tener al menos 8 caracteres.</span>
+            <span *ngIf="usuarioForm.get('password')?.errors?.['maxlength']">La contraseña no puede exceder los 50 caracteres.</span>
+            <span *ngIf="usuarioForm.get('password')?.errors?.['pattern']">La contraseña debe contener al menos una letra minúscula, una letra mayúscula y un número.</span>
+          </p>
+          }
+          <p class="mt-1 text-xs text-text-secondary">
+            La contraseña debe tener al menos 8 caracteres, una letra minúscula, una letra mayúscula y un número.
+          </p>
+        </div>
+        }
+      </div>
+  
+      <!-- Configuración avanzada -->
+      <div class="mb-5">
+        <h2 class="text-lg font-medium text-text-primary mb-4">Configuración avanzada</h2>
+        
+        <!-- Campo rol -->
+        <div class="mb-5">
+          <label for="rol" class="block text-sm font-medium text-text-secondary mb-2">
+            Rol <span class="text-bordeaux-500">*</span>
+          </label>
+          <select id="rol" formControlName="rol"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+            [ngClass]="{'border-bordeaux-500': usuarioForm.get('rol')?.invalid && usuarioForm.get('rol')?.touched}">
+            <option value="">Seleccionar rol</option>
+            <option value="administrador">Administrador</option>
+            <option value="abogado">Abogado</option>
+          </select>
+          @if (usuarioForm.get('rol')?.invalid && usuarioForm.get('rol')?.touched) {
+          <p class="mt-2 text-sm text-bordeaux-500">
+            <span *ngIf="usuarioForm.get('rol')?.errors?.['required']">El rol es obligatorio.</span>
+          </p>
+          }
+        </div>
+  
+        <!-- Campo activo (solo visible en edición) -->
+        @if (isEditing) {
+        <div class="mb-5">
+          <div class="flex items-center">
+            <input type="checkbox" id="activo" formControlName="activo"
+              class="w-4 h-4 text-accent bg-surface-alt border-border rounded focus:ring-accent focus:ring-2">
+            <label for="activo" class="ml-2 text-sm font-medium text-text-secondary">
+              Usuario activo
+            </label>
+          </div>
+          <p class="mt-1 text-xs text-text-secondary">
+            Los usuarios inactivos no podrán iniciar sesión en el sistema.
+          </p>
+        </div>
+        }
+      </div>
+  
+      <!-- Botones de acción -->
+      <div class="flex justify-end mt-8">
+        <button type="button" (click)="goBack()"
+          class="px-4 py-2 mr-3 border border-border rounded-lg text-text-secondary hover:bg-surface-alt transition-colors duration-200">
+          Cancelar
+        </button>
+  
+        <button type="submit" [disabled]="isSubmitting || (isEditing && !usuarioForm.get('activo')?.dirty && !usuarioForm.get('rol')?.dirty)"
+          class="flex items-center gap-2 px-6 py-2 bg-accent hover:bg-accent-hover text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed">
+          @if (isSubmitting) {
+          <fa-icon [icon]="faSpinner" class="animate-spin"></fa-icon>
+          <span>Guardando...</span>
+          } @else {
+          <fa-icon [icon]="faSave"></fa-icon>
+          <span>{{ submitButtonText }}</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>

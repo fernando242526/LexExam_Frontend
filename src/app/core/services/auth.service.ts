@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 
@@ -29,6 +29,7 @@ export interface User {
   email: string;
   nombreCompleto: string;
   rol: string;
+  expiresAt?: Date;
 }
 
 /**
@@ -38,7 +39,7 @@ export interface User {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = `${environment.apiUrl}/auth`;
+  private readonly API_URL = `${environment.apiUrl}`;
   private readonly TOKEN_KEY = 'access_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private readonly USER_KEY = 'user';
@@ -56,9 +57,10 @@ export class AuthService {
    * Inicia sesión con email y contraseña
    */
   login(username: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/login`, { username, password })
+    return this.http.post<{data: AuthResponse}>(`${this.API_URL}/auth/login`, { username, password })
       .pipe(
-        tap(response => this.handleAuthentication(response)),
+        map(response => response.data), // Extraer el objeto data de la respuesta
+        tap(authData => this.handleAuthentication(authData)),
         catchError(error => this.handleError(error))
       );
   }
@@ -80,7 +82,7 @@ export class AuthService {
     }
     
     // Si hay refresh token, lo revocamos en el servidor
-    return this.http.post<{ success: boolean }>(`${this.API_URL}/logout`, { refreshToken })
+    return this.http.post<{ success: boolean }>(`${this.API_URL}/auth/logout`, { refreshToken })
       .pipe(
         tap(() => {
           this.clearAuthData();
@@ -105,7 +107,7 @@ export class AuthService {
       return throwError(() => new Error('No hay refresh token disponible'));
     }
     
-    return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, { refreshToken })
+    return this.http.post<AuthResponse>(`${this.API_URL}/auth/refresh`, { refreshToken })
       .pipe(
         tap(response => this.handleAuthentication(response)),
         catchError(error => this.handleError(error))
@@ -163,7 +165,8 @@ export class AuthService {
       username: response.username,
       email: response.email,
       nombreCompleto: response.nombreCompleto,
-      rol: response.rol
+      rol: response.rol,
+      expiresAt: response.expiresAt
     };
     
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
@@ -195,6 +198,13 @@ export class AuthService {
       console.error('Error al parsear usuario desde localStorage', error);
       return null;
     }
+  }
+
+  isTokenExpired(): boolean {
+    const user = this.getCurrentUser();
+    if (!user || !user.expiresAt) return true;
+    
+    return new Date() > new Date(user.expiresAt);
   }
   
   /**

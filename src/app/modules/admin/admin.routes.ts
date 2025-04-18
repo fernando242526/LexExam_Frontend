@@ -42,6 +42,30 @@ export const routes: Routes = [
                 path: 'temas/edit/:id',
                 loadComponent: () => import('./components/temas-form/temas-form.component'),
             },
+            {
+                path: 'preguntas',
+                loadComponent: () => import('./preguntas/view-preguntas/view-preguntas.component'),
+            },
+            {
+                path: 'preguntas/create-masivo',
+                loadComponent: () => import('./components/preguntas-form/preguntas-form.component'),
+            },
+            {
+                path: 'usuarios',
+                loadComponent: () => import('./usuarios/view-usuarios/view-usuarios.component'),
+            },
+            {
+                path: 'usuarios/create',
+                loadComponent: () => import('./components/usuarios-form/usuarios-form.component'),
+            },
+            {
+                path: 'usuarios/edit/:id',
+                loadComponent: () => import('./components/usuarios-form/usuarios-form.component'),
+            },
+            {
+                path: 'usuarios/view/:id',
+                loadComponent: () => import('./usuarios/usuario-detail/usuario-detail.component'),
+            },
         ]
     }
 ]
