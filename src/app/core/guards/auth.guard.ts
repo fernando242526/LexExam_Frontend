@@ -1,22 +1,20 @@
-// src/app/core/guards/auth.guard.ts
 import { Injectable } from '@angular/core';
 import { 
   CanActivate, 
   CanActivateChild, 
+  CanMatch,
+  Route,
+  UrlSegment,
   ActivatedRouteSnapshot, 
   RouterStateSnapshot, 
   Router 
 } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-/**
- * Guard para proteger rutas que requieren autenticación
- * y verificar roles específicos
- */
 @Injectable({
   providedIn: 'root'
 })
-export class AuthGuard implements CanActivate, CanActivateChild {
+export class AuthGuard implements CanActivate, CanActivateChild, CanMatch {
   constructor(
     private authService: AuthService,
     private router: Router
@@ -29,16 +27,40 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean {
+    return this.checkAuth(route.data['roles'], state.url);
+  }
+  
+  /**
+   * Verifica si el usuario puede activar rutas hijas
+   */
+  canActivateChild(
+    childRoute: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): boolean {
+    return this.canActivate(childRoute, state);
+  }
+  
+  /**
+   * Verifica si la ruta coincide con las condiciones (reemplaza a canLoad)
+   */
+  canMatch(route: Route, segments: UrlSegment[]): boolean {
+    const url = `/${segments.map(s => s.path).join('/')}`;
+    return this.checkAuth(route.data?.['roles'], url);
+  }
+  
+  /**
+   * Método común para verificar autenticación y roles
+   */
+  private checkAuth(requiredRoles?: string[], url?: string): boolean {
     // Verificar autenticación
     if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/auth/login'], { 
-        queryParams: { returnUrl: state.url } 
+        queryParams: url ? { returnUrl: url } : {} 
       });
       return false;
     }
     
-    // Verificar roles si están definidos en la ruta
-    const requiredRoles = route.data['roles'] as Array<string>;
+    // Verificar roles si están definidos
     if (requiredRoles && requiredRoles.length > 0) {
       const hasRequiredRole = requiredRoles.some(role => 
         this.authService.hasRole(role)
@@ -57,15 +79,5 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     }
     
     return true;
-  }
-  
-  /**
-   * Verifica si el usuario puede activar rutas hijas
-   */
-  canActivateChild(
-    childRoute: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): boolean {
-    return this.canActivate(childRoute, state);
   }
 }

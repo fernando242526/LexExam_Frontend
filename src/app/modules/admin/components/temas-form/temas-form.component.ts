@@ -127,10 +127,22 @@ export default class TemasFormComponent implements OnInit {
    */
   loadEspecialidades(): void {
     this.isLoadingEspecialidades = true;
+    const especialidadControl = this.temaForm.get('especialidadId');
+    
+    // Deshabilitar mientras se cargan las especialidades
+    if (especialidadControl) {
+      especialidadControl.disable();
+    }
 
     this.especialidadesService
       .getEspecialidadesForSelect()
-      .pipe(finalize(() => (this.isLoadingEspecialidades = false)))
+      .pipe(finalize(() => {
+        this.isLoadingEspecialidades = false;
+        // Volver a habilitar cuando se complete la carga
+        if (especialidadControl && !this.isSubmitting) {
+          especialidadControl.enable();
+        }
+      }))
       .subscribe({
         next: (especialidades) => {
           this.especialidades = especialidades;
@@ -150,10 +162,22 @@ export default class TemasFormComponent implements OnInit {
    */
   loadBalotarios(especialidadId: string): void {
     this.isLoadingBalotarios = true;
+    const balotarioControl = this.temaForm.get('balotario')?.get('id');
+    
+    // Deshabilitar mientras se cargan los balotarios
+    if (balotarioControl) {
+      balotarioControl.disable();
+    }
 
     this.balotariosService
       .getBalotariosForSelect(especialidadId)
-      .pipe(finalize(() => (this.isLoadingBalotarios = false)))
+      .pipe(finalize(() => {
+        this.isLoadingBalotarios = false;
+        // Volver a habilitar cuando se complete la carga solo si hay una especialidad seleccionada
+        if (balotarioControl && this.temaForm.get('especialidadId')?.value && !this.isSubmitting) {
+          balotarioControl.enable();
+        }
+      }))
       .subscribe({
         next: (balotarios) => {
           this.balotarios = balotarios;
@@ -174,8 +198,21 @@ export default class TemasFormComponent implements OnInit {
   loadTema(id: string): void {
     this.isSubmitting = true;
     
+    // Deshabilitar todos los controles mientras se carga el tema
+    this.temaForm.disable();
+    
     this.temasService.getTema(id)
-      .pipe(finalize(() => this.isSubmitting = false))
+      .pipe(finalize(() => {
+        this.isSubmitting = false;
+        // Si no hay error, habilitar los controles después de cargar
+        if (!this.error) {
+          this.temaForm.enable();
+          // Pero mantener el control de balotario deshabilitado si no hay especialidad seleccionada
+          if (!this.temaForm.get('especialidadId')?.value) {
+            this.temaForm.get('balotario')?.get('id')?.disable();
+          }
+        }
+      }))
       .subscribe({
         next: (tema) => {
           // Primero actualizamos los campos básicos
@@ -198,17 +235,16 @@ export default class TemasFormComponent implements OnInit {
             // Cargar los balotarios de esa especialidad
             this.loadBalotarios(especialidadId);
             
-            // Habilitar el control de balotario
-            const balotarioControl = this.temaForm.get('balotario')?.get('id');
-            if (balotarioControl) {
-              balotarioControl.enable();
-              
-              // Establecer el valor del balotario después de un breve retardo
-              // para asegurar que los balotarios se hayan cargado
-              setTimeout(() => {
+            // Establecer el valor del balotario después de un breve retardo
+            // para asegurar que los balotarios se hayan cargado
+            setTimeout(() => {
+              // Habilitar el control de balotario antes de asignar el valor
+              const balotarioControl = this.temaForm.get('balotario')?.get('id');
+              if (balotarioControl) {
+                balotarioControl.enable();
                 balotarioControl.setValue(tema.balotario?.id);
-              }, 300);
-            }
+              }
+            }, 300);
           }
         },
         error: (err) => {
@@ -240,9 +276,12 @@ export default class TemasFormComponent implements OnInit {
 
     this.isSubmitting = true;
     this.error = null;
+    
+    // Deshabilitar formulario durante el envío
+    this.temaForm.disable();
 
     // Extraer solo los campos necesarios para enviar al backend
-    const formValues = this.temaForm.value;
+    const formValues = this.temaForm.getRawValue(); // Usa getRawValue() para obtener también valores de controles deshabilitados
     const temaData: Partial<Tema> = {
       titulo: formValues.titulo,
       descripcion: formValues.descripcion,
@@ -259,7 +298,17 @@ export default class TemasFormComponent implements OnInit {
         ? this.temasService.updateTema(this.temaId, temaData)
         : this.temasService.createTema(temaData);
 
-    saveAction.pipe(finalize(() => (this.isSubmitting = false))).subscribe({
+    saveAction.pipe(finalize(() => {
+      this.isSubmitting = false;
+      // Si hay error, habilitar el formulario nuevamente
+      if (this.error) {
+        this.temaForm.enable();
+        // Pero mantener la lógica para el control de balotario
+        if (!this.temaForm.get('especialidadId')?.value) {
+          this.temaForm.get('balotario')?.get('id')?.disable();
+        }
+      }
+    })).subscribe({
       next: () => {
         // Mostrar mensaje de éxito según la acción (crear o actualizar)
         if (this.isEditing) {

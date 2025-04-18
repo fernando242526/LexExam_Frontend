@@ -1,0 +1,229 @@
+<!-- Hero Section -->
+<section class="bg-gradient-to-b from-background to-surface py-20 lg:py-32">
+  <div class="container mx-auto px-4">
+    <div class="flex flex-col lg:flex-row items-center">
+      <div class="lg:w-1/2 mb-10 lg:mb-0">
+        <h1 class="text-4xl lg:text-5xl font-bold text-text-primary leading-tight mb-6">
+          Prepárate para aprobar tu <span class="text-accent">examen jurídico</span> con confianza
+        </h1>
+        <p class="text-lg text-text-secondary mb-8">
+          Miles de preguntas y simulacros de examen actualizados para jueces, fiscales y otros profesionales del derecho.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <a 
+            routerLink="/auth/register" 
+            class="px-6 py-3 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors duration-200 text-center"
+          >
+            Empezar Ahora
+          </a>
+          <a 
+            routerLink="/planes" 
+            class="px-6 py-3 border border-accent text-accent rounded-lg hover:bg-accent hover:text-white transition-colors duration-200 text-center"
+          >
+            Ver Planes
+          </a>
+        </div>
+      </div>
+      
+      <div class="lg:w-1/2 lg:pl-12">
+        <img 
+          src="assets/images/hero-image.png" 
+          alt="LexExam - Preparación para exámenes jurídicos" 
+          class="w-full h-auto rounded-lg shadow-xl"
+        >
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Características -->
+<section class="py-20 bg-surface">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl font-bold text-text-primary mb-4">¿Por qué elegir LexExam?</h2>
+      <p class="text-text-secondary max-w-2xl mx-auto">
+        Nuestra plataforma está diseñada específicamente para abogados que buscan destacar en su carrera profesional.
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      @for (feature of features; track feature.title) {
+        <div class="bg-surface-alt p-8 rounded-xl shadow-sm border border-border transition-transform duration-300 hover:transform hover:scale-105">
+          <div class="w-14 h-14 rounded-full bg-accent bg-opacity-10 flex items-center justify-center mb-6">
+            <fa-icon [icon]="feature.icon" class="text-accent text-xl"></fa-icon>
+          </div>
+          <h3 class="text-xl font-semibold text-text-primary mb-3">{{ feature.title }}</h3>
+          <p class="text-text-secondary">{{ feature.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Estadísticas -->
+<section class="py-16 bg-accent text-white">
+  <div class="container mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+      <div>
+        <div class="text-4xl font-bold mb-2">+5,000</div>
+        <p>Usuarios registrados</p>
+      </div>
+      <div>
+        <div class="text-4xl font-bold mb-2">+10,000</div>
+        <p>Preguntas disponibles</p>
+      </div>
+      <div>
+        <div class="text-4xl font-bold mb-2">+500</div>
+        <p>Simulacros completados</p>
+      </div>
+      <div>
+        <div class="text-4xl font-bold mb-2">92%</div>
+        <p>Tasa de aprobación</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Especialidades -->
+<section class="py-20 bg-surface">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl font-bold text-text-primary mb-4">Especialidades disponibles</h2>
+      <p class="text-text-secondary max-w-2xl mx-auto">
+        Contamos con exámenes en las principales áreas del derecho, actualizados constantemente.
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (speciality of specialities; track speciality.path) {
+        <a 
+          [routerLink]="speciality.path" 
+          class="group relative overflow-hidden rounded-xl shadow-sm border border-border"
+        >
+          <div class="aspect-w-16 aspect-h-10 bg-surface-alt">
+            <img 
+              [src]="speciality.image" 
+              [alt]="speciality.title"
+              class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
+            >
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-4">
+              <h3 class="text-white font-semibold text-lg">{{ speciality.title }}</h3>
+              <div class="flex items-center text-white/80 mt-2">
+                <span>Explorar</span>
+                <fa-icon [icon]="faArrowRight" class="ml-2 transition-transform duration-300 group-hover:translate-x-1"></fa-icon>
+              </div>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+    
+    <div class="text-center mt-10">
+      <a 
+        routerLink="/especialidades" 
+        class="inline-flex items-center text-accent hover:text-accent-hover transition-colors duration-200"
+      >
+        Ver todas las especialidades
+        <fa-icon [icon]="faArrowRight" class="ml-2"></fa-icon>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Cómo funciona -->
+<section class="py-20 bg-surface-alt">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl font-bold text-text-primary mb-4">¿Cómo empezar?</h2>
+      <p class="text-text-secondary max-w-2xl mx-auto">
+        <!-- Continuación del src/app/modules/web/home/home.component.html -->
+
+      <p class="text-text-secondary max-w-2xl mx-auto">
+        Comenzar a prepararte es muy sencillo. Sigue estos pasos y estarás listo para triunfar en tus exámenes legales.
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      @for (step of steps; track step.number) {
+        <div class="relative pl-16 pt-6">
+          <div class="absolute top-0 left-0 w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold">
+            {{ step.number }}
+          </div>
+          <h3 class="text-xl font-semibold text-text-primary mb-3">{{ step.title }}</h3>
+          <p class="text-text-secondary">{{ step.description }}</p>
+        </div>
+      }
+    </div>
+    
+    <div class="text-center mt-16">
+      <a 
+        routerLink="/auth/register" 
+        class="px-8 py-4 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors duration-200 inline-flex items-center"
+      >
+        Registrarme Ahora
+        <fa-icon [icon]="faArrowRight" class="ml-2"></fa-icon>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonios -->
+<section class="py-20 bg-surface">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl font-bold text-text-primary mb-4">Lo que dicen nuestros usuarios</h2>
+      <p class="text-text-secondary max-w-2xl mx-auto">
+        Conoce las experiencias de profesionales que han logrado sus objetivos con nuestra plataforma.
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      @for (testimonial of testimonials; track testimonial.name) {
+        <div class="bg-surface-alt p-8 rounded-xl shadow-sm border border-border">
+          <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+              <img 
+                [src]="testimonial.image" 
+                [alt]="testimonial.name"
+                class="w-full h-full object-cover"
+              >
+            </div>
+            <div>
+              <h4 class="font-semibold text-text-primary">{{ testimonial.name }}</h4>
+              <p class="text-sm text-text-secondary">{{ testimonial.position }}</p>
+            </div>
+          </div>
+          
+          <fa-icon [icon]="faQuoteLeft" class="text-accent opacity-20 text-4xl mb-4"></fa-icon>
+          
+          <p class="text-text-secondary">{{ testimonial.text }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-20 bg-accent text-white">
+  <div class="container mx-auto px-4 text-center">
+    <h2 class="text-3xl font-bold mb-6">¿Listo para alcanzar el éxito en tu carrera legal?</h2>
+    <p class="text-lg opacity-90 max-w-2xl mx-auto mb-8">
+      Únete a miles de profesionales que han mejorado sus oportunidades gracias a LexExam.
+    </p>
+    <div class="flex flex-col sm:flex-row justify-center gap-4">
+      <a 
+        routerLink="/auth/register" 
+        class="px-8 py-4 bg-white text-accent rounded-lg hover:bg-surface-alt transition-colors duration-200"
+      >
+        Comenzar Ahora
+      </a>
+      <a 
+        routerLink="/nosotros" 
+        class="px-8 py-4 border border-white text-white rounded-lg hover:bg-white/10 transition-colors duration-200"
+      >
+        Conocer Más
+      </a>
+    </div>
+  </div>
+</section>

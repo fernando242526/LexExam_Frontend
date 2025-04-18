@@ -1,0 +1,81 @@
+/* src/app/modules/admin/usuarios/components/usuario-detail/usuario-detail.component.scss */
+
+/* Animación para aparición del contenido */
+.bg-surface {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animación para mensajes de error */
+div[class*="bg-bordeaux-50"] {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animación del spinner */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Efecto de pulsación para botones */
+button {
+  position: relative;
+  overflow: hidden;
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+/* Transición para hover en botones */
+button:hover {
+  transition: all 0.2s ease;
+}
+
+/* Estilos para badges de rol */
+span[class*="rounded-full"] {
+  transition: all 0.2s ease;
+}
+
+/* Mejora visual para espaciado */
+.grid {
+  row-gap: 1.25rem;
+}
+
+/* Estilo para etiquetas */
+.text-sm.text-text-secondary {
+  margin-bottom: 0.25rem;
+}

@@ -1,0 +1,22 @@
+/* src/app/shared/components/footer/footer.component.scss */
+:host {
+  display: block;
+}
+
+/* Efecto de hover para los enlaces */
+a {
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--color-accent);
+  }
+}
+
+/* Animación suave para los iconos sociales */
+a[class*="rounded-full"] {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+  }
+}

@@ -1,6 +1,6 @@
 
 // src/app/shared/components/ui/toast/toast.component.ts
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, NgZone, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate, state } from '@angular/animations';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -47,9 +47,11 @@ import { Toast, ToastService, ToastType } from '../../../core/services/toast.ser
     ])
   ]
 })
-export class ToastComponent {
+export class ToastComponent implements OnInit, OnDestroy {
 
   private toastService = inject(ToastService);
+  private ngZone = inject(NgZone);
+  private cdr = inject(ChangeDetectorRef);
   
   // Iconos para los diferentes tipos de toast
   icons = {
@@ -65,11 +67,51 @@ export class ToastComponent {
   // Obtener toasts del servicio
   toastsValue = computed(() => this.toastService.toasts$());
   
+  // Progreso de cada toast
+  toastProgress = new Map<string, number>();
+  
+  // Intervalo para actualizar el progreso
+  private progressInterval: any;
+
+  ngOnInit() {
+    // Configurar el intervalo de actualización fuera de la zona de Angular
+    this.ngZone.runOutsideAngular(() => {
+      this.progressInterval = setInterval(() => {
+        let needsUpdate = false;
+        
+        for (const toast of this.toastsValue()) {
+          if (toast.duration > 0) {
+            const progress = this.calculateProgress(toast);
+            // Solo actualizamos si hay un cambio significativo
+            if (!this.toastProgress.has(toast.id) || 
+                Math.abs(this.toastProgress.get(toast.id)! - progress) > 0.5) {
+              this.toastProgress.set(toast.id, progress);
+              needsUpdate = true;
+            }
+          }
+        }
+        
+        // Solo trigger de detección de cambios si hay actualizaciones significativas
+        if (needsUpdate) {
+          this.ngZone.run(() => {
+            this.cdr.detectChanges();
+          });
+        }
+      }, 100); // Actualización cada 100ms
+    });
+  }
+
+  ngOnDestroy() {
+    // Limpiar intervalo al destruir el componente
+    if (this.progressInterval) {
+      clearInterval(this.progressInterval);
+    }
+  }
+  
   /**
    * Determina la clase CSS del contenedor según el tipo de toast
    */
   getContainerClass(type: ToastType): string {
-    // Todos los toasts tienen el mismo color de fondo, pero diferentes bordes
     return 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700';
   }
   
@@ -124,9 +166,19 @@ export class ToastComponent {
   }
   
   /**
-   * Calcula el progreso de desaparición del toast
+   * Obtiene el progreso calculado para un toast específico
    */
   getProgress(toast: Toast): number {
+    if (!this.toastProgress.has(toast.id)) {
+      this.toastProgress.set(toast.id, this.calculateProgress(toast));
+    }
+    return this.toastProgress.get(toast.id)!;
+  }
+  
+  /**
+   * Calcula el progreso actual pero no actualiza el Map
+   */
+  private calculateProgress(toast: Toast): number {
     if (toast.duration <= 0) return 100;
     
     const elapsed = Date.now() - toast.timestamp;

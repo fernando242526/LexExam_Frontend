@@ -41,6 +41,7 @@ export class AuthInterceptorService implements HttpInterceptor {
     
     // Agregar token de autenticación a la petición
     const token = this.authService.getToken();
+    
     if (token) {
       req = this.addTokenToRequest(req, token);
     }

@@ -18,7 +18,8 @@ import { Especialidad } from '../../../../core/models/especialidad.model';
     RouterModule, 
     ReactiveFormsModule, 
     FontAwesomeModule,
-    PaginationComponentComponent],
+    PaginationComponentComponent
+  ],
   templateUrl: './view-especialidades.component.html',
   styleUrl: './view-especialidades.component.scss'
 })

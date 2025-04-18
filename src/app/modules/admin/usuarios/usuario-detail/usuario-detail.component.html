@@ -1,0 +1,155 @@
+<!-- src/app/modules/admin/usuarios/components/usuario-detail/usuario-detail.component.html -->
+<div class="p-6 max-w-7xl mx-auto">
+    <!-- Encabezado de sección -->
+    <div class="mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h1 class="text-2xl font-bold text-text-primary">Detalle de Usuario</h1>
+            <button (click)="goBack()"
+                class="flex items-center gap-2 px-4 py-2 bg-surface-alt hover:bg-border text-text-secondary rounded-lg transition-colors duration-200">
+                <fa-icon [icon]="faArrowLeft"></fa-icon>
+                <span>Volver</span>
+            </button>
+        </div>
+        <p class="text-text-secondary mt-1">
+            Información detallada del usuario
+        </p>
+    </div>
+
+    <!-- Mensaje de error -->
+    @if (error) {
+    <div
+        class="mb-6 p-4 rounded-lg bg-bordeaux-50 dark:bg-bordeaux-900 border border-bordeaux-300 dark:border-bordeaux-700 text-bordeaux-700 dark:text-bordeaux-300 flex items-center gap-3">
+        <fa-icon [icon]="faExclamationTriangle" class="text-bordeaux-500"></fa-icon>
+        <span>{{ error }}</span>
+    </div>
+    }
+
+    <!-- Estado de carga -->
+    @if (isLoading) {
+    <div class="flex justify-center items-center p-8">
+        <fa-icon [icon]="faSpinner" class="text-2xl text-accent animate-spin"></fa-icon>
+        <span class="ml-2 text-text-secondary">Cargando información...</span>
+    </div>
+    }
+
+    <!-- Contenido principal -->
+    @if (!isLoading && usuario) {
+    <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+        <!-- Información básica -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold text-text-primary mb-4 pb-2 border-b border-border">
+                Información básica
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Nombre completo -->
+                <div class="flex flex-col">
+                    <span class="text-sm text-text-secondary">Nombre completo</span>
+                    <span class="font-medium text-text-primary">{{ usuario.nombreCompleto }}</span>
+                </div>
+
+                <!-- Estado -->
+                <div class="flex flex-col">
+                    <span class="text-sm text-text-secondary">Estado</span>
+                    <span class="inline-flex items-center">
+                        <span class="w-2 h-2 rounded-full mr-2"
+                            [ngClass]="usuario.activo ? 'bg-green-500' : 'bg-slate-500'"></span>
+                        <span class="font-medium text-text-primary">{{ usuario.activo ? 'Activo' : 'Inactivo' }}</span>
+                    </span>
+                </div>
+
+                <!-- Nombre -->
+                <div class="flex flex-col">
+                    <span class="text-sm text-text-secondary">Nombre</span>
+                    <span class="font-medium text-text-primary">{{ usuario.nombre }}</span>
+                </div>
+
+                <!-- Apellidos -->
+                <div class="flex flex-col">
+                    <span class="text-sm text-text-secondary">Apellidos</span>
+                    <span class="font-medium text-text-primary">{{ usuario.apellidos }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información de acceso -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold text-text-primary mb-4 pb-2 border-b border-border">
+                Información de acceso
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Correo electrónico -->
+                <div class="flex flex-col">
+                    <span class="text-sm text-text-secondary">Correo electrónico</span>
+                    <span class="font-medium text-text-primary">{{ usuario.email }}</span>
+                </div>
+
+                <!-- Nombre de usuario -->
+                <div class="flex flex-col">
+                    <span class="text-sm text-text-secondary">Nombre de usuario</span>
+                    <span class="font-medium text-text-primary">{{ usuario.username }}</span>
+                </div>
+
+                <!-- Rol -->
+                <div class="flex flex-col">
+                    <span class="text-sm text-text-secondary">Rol</span>
+                    <span class="inline-flex items-center">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="{
+                  'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200': usuario.rol === 'administrador',
+                  'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200': usuario.rol === 'abogado'
+                }">
+                            {{ usuario.rol | titlecase }}
+                        </span>
+                    </span>
+                </div>
+
+                <!-- Último acceso -->
+                <div class="flex flex-col">
+                    <span class="text-sm text-text-secondary">Último acceso</span>
+                    <span class="font-medium text-text-primary">
+                        {{ usuario.ultimoLogin ? (usuario.ultimoLogin | date:'dd/MM/yyyy HH:mm') : 'Nunca ha accedido'
+                        }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información del sistema -->
+        <div class="mb-4">
+            <h2 class="text-lg font-semibold text-text-primary mb-4 pb-2 border-b border-border">
+                Información del sistema
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Fecha de creación -->
+                <div class="flex flex-col">
+                    <span class="text-sm text-text-secondary">Fecha de creación</span>
+                    <span class="font-medium text-text-primary">{{ usuario.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+
+                <!-- Fecha de última actualización -->
+                <div class="flex flex-col">
+                    <span class="text-sm text-text-secondary">Última actualización</span>
+                    <span class="font-medium text-text-primary">{{ usuario.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Opciones de acción -->
+        <div class="flex justify-end mt-6 pt-4 border-t border-border">
+            <button (click)="onToggleStatus(usuario.id, usuario.activo, usuario.nombreCompleto)"
+                class="flex items-center gap-2 px-4 py-2 mr-3 border border-border rounded-lg text-text-secondary hover:bg-surface-alt transition-colors duration-200">
+                <fa-icon [icon]="usuario.activo ? faUserSlash : faUserCheck"></fa-icon>
+                <span>{{ usuario.activo ? 'Desactivar usuario' : 'Activar usuario' }}</span>
+            </button>
+
+            <button (click)="onChangeRol(usuario.id, usuario.rol, usuario.nombreCompleto)"
+                class="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors duration-200">
+                <fa-icon [icon]="faUserCog"></fa-icon>
+                <span>Cambiar a {{ usuario.rol === 'administrador' ? 'Abogado' : 'Administrador' }}</span>
+            </button>
+        </div>
+    </div>
+    }
+</div>
