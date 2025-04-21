@@ -20,22 +20,12 @@
 
         <!-- Redes sociales -->
         <div class="flex space-x-4">
-          <a href="#"
-            class="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-text-secondary hover:text-accent transition-colors duration-200">
-            <!-- <fa-icon [icon]="faFacebook"></fa-icon> -->
-          </a>
-          <a href="#"
-            class="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-text-secondary hover:text-accent transition-colors duration-200">
-            <!-- <fa-icon [icon]="faTwitter"></fa-icon> -->
-          </a>
-          <a href="#"
-            class="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-text-secondary hover:text-accent transition-colors duration-200">
-            <!-- <fa-icon [icon]="faInstagram"></fa-icon> -->
-          </a>
-          <a href="#"
-            class="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-text-secondary hover:text-accent transition-colors duration-200">
-            <!-- <fa-icon [icon]="faLinkedin"></fa-icon> -->
-          </a>
+          @for (red of redesSociales; track $index) {
+            <a href="#"
+              class="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-text-secondary hover:text-accent transition-colors duration-200">
+              <fa-icon [icon]="red.icon"></fa-icon>
+            </a>
+          }
         </div>
       </div>
 

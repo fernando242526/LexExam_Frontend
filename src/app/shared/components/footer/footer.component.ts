@@ -7,6 +7,13 @@ import {
   faPhone,
   faMapMarkerAlt,
 } from '@fortawesome/free-solid-svg-icons';
+import {
+  faFacebookF,
+  faTwitter,
+  faInstagram,
+  faLinkedinIn,
+  faYoutube,
+} from '@fortawesome/free-brands-svg-icons';
 
 @Component({
   selector: 'app-footer',
@@ -17,11 +24,11 @@ import {
 export class FooterComponent {
 
   // Iconos redes sociales
-  // faFacebook = faFacebookF;
-  // faTwitter = faTwitter;
-  // faInstagram = faInstagram;
-  // faLinkedin = faLinkedinIn;
-  // faYoutube = faYoutube;
+  faFacebook = faFacebookF;
+  faTwitter = faTwitter;
+  faInstagram = faInstagram;
+  faLinkedin = faLinkedinIn;
+  faYoutube = faYoutube;
   
   // Iconos contacto
   faEnvelope = faEnvelope;
@@ -39,6 +46,14 @@ export class FooterComponent {
     { title: 'Planes', path: '/planes' },
     { title: 'Preguntas frecuentes', path: '/faq' }
   ];
+
+  redesSociales = [
+    { icon: this.faFacebook, path: '' },
+    { icon: this.faTwitter, path: '' },
+    { icon: this.faInstagram, path: '' },
+    { icon: this.faLinkedin, path: '' },
+    { icon: this.faYoutube, path: '' },
+  ]
   
   // Enlaces de especialidades
   specialities = [

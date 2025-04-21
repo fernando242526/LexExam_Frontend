@@ -1,74 +1,55 @@
 <div class="flex items-center justify-center space-x-1">
-    <!-- Botón anterior -->
-    <button 
-      (click)="onPageChange(currentPage - 1)"
-      [disabled]="currentPage === 1"
-      class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-surface text-text-secondary hover:bg-surface-alt disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-      aria-label="Página anterior"
-    >
-      <fa-icon [icon]="faChevronLeft" [fixedWidth]="true"></fa-icon>
+  <!-- Botón anterior -->
+  <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1"
+    class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-surface text-text-secondary hover:bg-surface-alt disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+    aria-label="Página anterior">
+    <fa-icon [icon]="faChevronLeft" [fixedWidth]="true"></fa-icon>
+  </button>
+
+  <!-- Primera página -->
+  @if (showFirstPage) {
+  <button (click)="onPageChange(1)" [class.bg-accent]="currentPage === 1" [class.text-white]="currentPage === 1"
+    [class.border-accent]="currentPage === 1"
+    class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-surface text-text-secondary hover:bg-surface-alt transition-colors duration-200">
+    1
+  </button>
+  }
+
+  <!-- Elipsis izquierdo -->
+  @if (startPage > 2) {
+  <button class="inline-flex items-center justify-center w-8 h-8 text-text-secondary">
+    <fa-icon [icon]="faEllipsis"></fa-icon>
+  </button>
+  }
+
+  <!-- Páginas numeradas -->
+  @for (page of visiblePages; track page) {
+  <button (click)="onPageChange(page)" [class.bg-accent]="currentPage === page"
+    [class.text-white]="currentPage === page" [class.border-accent]="currentPage === page"
+    class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-surface text-text-secondary hover:bg-surface-alt transition-colors duration-200">
+    {{ page }}
+  </button>
+  }
+
+  <!-- Elipsis derecho -->
+  @if (endPage < totalPages - 1) { <button class="inline-flex items-center justify-center w-8 h-8 text-text-secondary">
+    <fa-icon [icon]="faEllipsis"></fa-icon>
     </button>
-    
-    <!-- Primera página -->
-    @if (showFirstPage) {
-      <button 
-        (click)="onPageChange(1)"
-        [class.bg-accent]="currentPage === 1"
-        [class.text-white]="currentPage === 1"
-        [class.border-accent]="currentPage === 1"
-        class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-surface text-text-secondary hover:bg-surface-alt transition-colors duration-200"
-      >
-        1
-      </button>
     }
-    
-    <!-- Elipsis izquierdo -->
-    @if (startPage > 2) {
-      <button class="inline-flex items-center justify-center w-8 h-8 text-text-secondary">
-        <fa-icon [icon]="faEllipsis"></fa-icon>
-      </button>
-    }
-    
-    <!-- Páginas numeradas -->
-    @for (page of visiblePages; track page) {
-      <button 
-        (click)="onPageChange(page)"
-        [class.bg-accent]="currentPage === page"
-        [class.text-white]="currentPage === page"
-        [class.border-accent]="currentPage === page"
-        class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-surface text-text-secondary hover:bg-surface-alt transition-colors duration-200"
-      >
-        {{ page }}
-      </button>
-    }
-    
-    <!-- Elipsis derecho -->
-    @if (endPage < totalPages - 1) {
-      <button class="inline-flex items-center justify-center w-8 h-8 text-text-secondary">
-        <fa-icon [icon]="faEllipsis"></fa-icon>
-      </button>
-    }
-    
+
     <!-- Última página -->
     @if (showLastPage && totalPages > 1) {
-      <button 
-        (click)="onPageChange(totalPages)"
-        [class.bg-accent]="currentPage === totalPages"
-        [class.text-white]="currentPage === totalPages"
-        [class.border-accent]="currentPage === totalPages"
-        class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-surface text-text-secondary hover:bg-surface-alt transition-colors duration-200"
-      >
-        {{ totalPages }}
-      </button>
+    <button (click)="onPageChange(totalPages)" [class.bg-accent]="currentPage === totalPages"
+      [class.text-white]="currentPage === totalPages" [class.border-accent]="currentPage === totalPages"
+      class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-surface text-text-secondary hover:bg-surface-alt transition-colors duration-200">
+      {{ totalPages }}
+    </button>
     }
-    
+
     <!-- Botón siguiente -->
-    <button 
-      (click)="onPageChange(currentPage + 1)"
-      [disabled]="currentPage === totalPages"
+    <button (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages"
       class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-surface text-text-secondary hover:bg-surface-alt disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-      aria-label="Página siguiente"
-    >
+      aria-label="Página siguiente">
       <fa-icon [icon]="faChevronRight" [fixedWidth]="true"></fa-icon>
     </button>
-  </div>
+</div>

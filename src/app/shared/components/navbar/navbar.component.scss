@@ -1,11 +1,8 @@
-/* src/app/shared/components/navbar/navbar.component.scss */
 :host {
   display: block;
 }
 
 header {
-//   background-color: rgba(var(--color-background), 0.9);
-//   backdrop-filter: blur(10px);
   box-shadow: 0 0 0 transparent;
 
   &.scrolled {
