@@ -9,9 +9,6 @@ import { PaginationComponentComponent } from '../../../../shared/components/pagi
 import { EspecialidadesService } from '../../../../core/services/especialidades.service';
 import { Especialidad } from '../../../../core/models/especialidad.model';
 
-/**
- * Componente para listar y gestionar especialidades
- */
 @Component({
   selector: 'app-view-especialidades',
   imports: [CommonModule, 
@@ -145,5 +142,4 @@ export default class ViewEspecialidadesComponent implements OnInit {
     this.currentPage = page;
     this.loadEspecialidades();
   }
-
 }

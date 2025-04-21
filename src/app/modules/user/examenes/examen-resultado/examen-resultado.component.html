@@ -1,0 +1,229 @@
+<div class="p-6 max-w-7xl mx-auto">
+    <!-- Pantalla de carga -->
+    @if (isLoading) {
+    <div class="flex flex-col items-center justify-center min-h-[60vh]">
+        <fa-icon [icon]="faSpinner" class="text-4xl text-accent animate-spin mb-4"></fa-icon>
+        <p class="text-lg text-text-secondary">Cargando resultados del examen...</p>
+    </div>
+    }
+
+    <!-- Pantalla de error -->
+    @if (error) {
+    <div class="flex flex-col items-center justify-center min-h-[60vh]">
+        <div
+            class="max-w-lg w-full bg-bordeaux-50 dark:bg-bordeaux-900 border border-bordeaux-300 dark:border-bordeaux-700 rounded-xl p-8 text-center">
+            <fa-icon [icon]="faExclamationTriangle" class="text-4xl text-bordeaux-500 mb-4"></fa-icon>
+            <h2 class="text-xl font-bold text-bordeaux-700 dark:text-bordeaux-300 mb-2">Error al cargar los resultados
+            </h2>
+            <p class="text-bordeaux-600 dark:text-bordeaux-400 mb-6">{{ error }}</p>
+            <a routerLink="/examenes"
+                class="inline-flex items-center gap-2 px-6 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-text-primary rounded-lg transition-colors duration-200">
+                <fa-icon [icon]="faHome"></fa-icon>
+                <span>Volver a Exámenes</span>
+            </a>
+        </div>
+    </div>
+    }
+
+    <!-- Contenido de los resultados -->
+    @if (!isLoading && !error && resultado) {
+    <!-- Encabezado con acciones -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-text-primary">Resultados del Examen</h1>
+        <a routerLink="/examenes"
+            class="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-surface-alt transition-colors duration-200">
+            <fa-icon [icon]="faArrowLeft"></fa-icon>
+            <span>Volver a exámenes</span>
+        </a>
+    </div>
+
+    <!-- Tarjeta de resultado principal -->
+    <div class="bg-surface rounded-xl border border-border shadow-sm overflow-hidden mb-8">
+        <div class="bg-surface-alt border-b border-border p-5">
+            <h2 class="text-xl font-bold text-text-primary">{{ resultado.examen?.titulo }}</h2>
+            <p class="text-text-secondary mt-1">{{ resultado.examen?.tema?.titulo }}</p>
+        </div>
+
+        <div class="p-6">
+            <!-- Resumen de resultados -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Puntuación -->
+                <div class="bg-surface-alt p-5 rounded-xl border border-border text-center flex flex-col items-center">
+                    <fa-icon [icon]="faChartPie" class="text-accent text-2xl mb-2"></fa-icon>
+                    <h3 class="text-text-secondary text-sm mb-1">Puntuación</h3>
+                    <div class="text-3xl font-bold" [class]="getPorcentajeClass(resultado.porcentajeAcierto)">
+                        {{ resultado.puntuacionTotal }} pts
+                    </div>
+                    <p class="text-text-secondary mt-1">
+                        <span [class]="getPorcentajeClass(resultado.porcentajeAcierto)">{{ resultado.porcentajeAcierto
+                            }}%</span> de aciertos
+                    </p>
+                </div>
+
+                <!-- Preguntas acertadas -->
+                <div class="bg-surface-alt p-5 rounded-xl border border-border text-center flex flex-col items-center">
+                    <fa-icon [icon]="faQuestionCircle" class="text-accent text-2xl mb-2"></fa-icon>
+                    <h3 class="text-text-secondary text-sm mb-1">Preguntas</h3>
+                    <div class="text-3xl font-bold text-text-primary">
+                        {{ resultado.preguntasAcertadas }} / {{ resultado.totalPreguntas }}
+                    </div>
+                    <p class="text-text-secondary mt-1">preguntas acertadas</p>
+                </div>
+
+                <!-- Tiempo empleado -->
+                <div class="bg-surface-alt p-5 rounded-xl border border-border text-center flex flex-col items-center">
+                    <fa-icon [icon]="faClock" class="text-accent text-2xl mb-2"></fa-icon>
+                    <h3 class="text-text-secondary text-sm mb-1">Tiempo empleado</h3>
+                    <div class="text-3xl font-bold text-text-primary">
+                        {{ formatDuracion(resultado.duracionReal) }}
+                    </div>
+                    <p class="text-text-secondary mt-1">de {{ resultado.examen?.duracionMinutos || 0 }} min disponibles
+                    </p>
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="bg-surface-alt p-4 rounded-lg border border-border mb-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 text-text-secondary mb-1">
+                            <fa-icon [icon]="faCalendarAlt"></fa-icon>
+                            <span>Fecha: {{ resultado.fechaInicio | date: 'dd/MM/yyyy HH:mm' }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-text-secondary">
+                            <fa-icon [icon]="faBook"></fa-icon>
+                            <span>Balotario: {{ resultado.examen?.tema?.balotario?.nombre }}</span>
+                        </div>
+                    </div>
+
+                    <button (click)="crearNuevoExamen()"
+                        class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors duration-200">
+                        <fa-icon [icon]="faRedo"></fa-icon>
+                        <span>Intentar de nuevo</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Toggle para mostrar explicaciones -->
+            <div class="flex justify-end mb-4">
+                <button (click)="toggleExplanations()"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-text-secondary hover:text-accent transition-colors duration-200">
+                    <fa-icon [icon]="faInfoCircle"></fa-icon>
+                    <span>{{ showExplanations ? 'Ocultar explicaciones' : 'Mostrar explicaciones' }}</span>
+                </button>
+            </div>
+
+            <!-- Lista de preguntas con respuestas -->
+            @if (resultado.respuestasUsuario && resultado.respuestasUsuario.length > 0) {
+            <div class="space-y-6">
+                @for (respuesta of resultado.respuestasUsuario; track respuesta.id; let i = $index) {
+                <div class="border border-border rounded-lg overflow-hidden">
+                    <!-- Cabecera de la pregunta -->
+                    <div class="bg-surface-alt border-b border-border p-4 flex justify-between items-center">
+                        <h3 class="font-medium text-text-primary">Pregunta {{ i + 1 }}</h3>
+                        @if (respuesta.esCorrecta) {
+                        <span class="flex items-center gap-2 text-green-600 dark:text-green-400">
+                            <fa-icon [icon]="faCheckCircle"></fa-icon>
+                            <span>Correcta</span>
+                        </span>
+                        } @else {
+                        <span class="flex items-center gap-2 text-bordeaux-600 dark:text-bordeaux-400">
+                            <fa-icon [icon]="faTimesCircle"></fa-icon>
+                            <span>Incorrecta</span>
+                        </span>
+                        }
+                    </div>
+
+                    <!-- Texto de la pregunta -->
+                    <div class="p-4 border-b border-border">
+                        <p class="text-text-primary">{{ respuesta.pregunta?.texto }}</p>
+
+                        <!-- Explicación (opcional) -->
+                        @if (showExplanations && respuesta.pregunta?.explicacion) {
+                        <div
+                            class="mt-3 bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">Explicación:</h4>
+                            <p class="text-sm text-blue-700 dark:text-blue-300">{{ respuesta.pregunta.explicacion }}</p>
+                        </div>
+                        }
+                    </div>
+
+                    <!-- Listado de respuestas -->
+                    <div class="p-4">
+                        <div class="space-y-2">
+                            @for (opcion of respuesta.pregunta?.respuestas; track opcion.id) {
+                            <div class="flex items-start p-3 rounded-lg" [class]="opcion.id === respuesta.respuestaId && respuesta.esCorrecta 
+                               ? 'bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800' 
+                               : opcion.id === respuesta.respuestaId && !respuesta.esCorrecta 
+                               ? 'bg-bordeaux-50 dark:bg-bordeaux-900/30 border border-bordeaux-200 dark:border-bordeaux-800' 
+                               : opcion.esCorrecta 
+                               ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800'
+                               : 'bg-surface-alt border border-border'">
+                                <div class="mr-3 mt-0.5">
+                                    @if (opcion.id === respuesta.respuestaId && respuesta.esCorrecta) {
+                                    <fa-icon [icon]="faCheckCircle"
+                                        class="text-green-600 dark:text-green-400"></fa-icon>
+                                    } @else if (opcion.id === respuesta.respuestaId && !respuesta.esCorrecta) {
+                                    <fa-icon [icon]="faTimesCircle"
+                                        class="text-bordeaux-600 dark:text-bordeaux-400"></fa-icon>
+                                    } @else if (opcion.esCorrecta) {
+                                    <fa-icon [icon]="faCheckCircle" class="text-blue-600 dark:text-blue-400"></fa-icon>
+                                    } @else {
+                                    <div class="w-4 h-4 border border-slate-300 dark:border-slate-600 rounded-full">
+                                    </div>
+                                    }
+                                </div>
+                                <div>
+                                    <p [class]="opcion.id === respuesta.respuestaId 
+                              ? respuesta.esCorrecta 
+                                ? 'text-green-800 dark:text-green-200' 
+                                : 'text-bordeaux-800 dark:text-bordeaux-200'
+                              : opcion.esCorrecta 
+                                ? 'text-blue-800 dark:text-blue-200'
+                                : 'text-text-primary'">
+                                        {{ opcion.texto }}
+                                    </p>
+
+                                    @if (opcion.id === respuesta.respuestaId) {
+                                    <p class="text-sm mt-1"
+                                        [class]="respuesta.esCorrecta ? 'text-green-700 dark:text-green-300' : 'text-bordeaux-700 dark:text-bordeaux-300'">
+                                        {{ respuesta.esCorrecta ? 'Tu respuesta es correcta' : 'Tu respuesta es incorrecta' }}
+                                    </p>
+                                    } @else if (opcion.esCorrecta && !respuesta.esCorrecta) {
+                                    <p class="text-sm mt-1 text-blue-700 dark:text-blue-300">
+                                        Esta era la respuesta correcta
+                                    </p>
+                                    }
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            } @else {
+            <div class="p-8 text-center text-text-secondary bg-surface-alt rounded-lg border border-border">
+                <p>No hay información detallada de respuestas disponible.</p>
+            </div>
+            }
+        </div>
+
+        <!-- Botones de acción -->
+        <div
+            class="bg-surface-alt border-t border-border p-5 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <a routerLink="/examenes"
+                class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2 border border-border rounded-lg hover:bg-surface transition-colors duration-200">
+                <fa-icon [icon]="faHome"></fa-icon>
+                <span>Volver a exámenes</span>
+            </a>
+
+            <button (click)="crearNuevoExamen()"
+                class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors duration-200">
+                <fa-icon [icon]="faRedo"></fa-icon>
+                <span>Intentar de nuevo</span>
+            </button>
+        </div>
+    </div>
+    }
+</div>

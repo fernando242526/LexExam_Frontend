@@ -1,0 +1,152 @@
+<div class="p-6 max-w-7xl mx-auto">
+    <!-- Pantalla de carga -->
+    @if (isLoading) {
+    <div class="flex flex-col items-center justify-center min-h-[60vh]">
+        <fa-icon [icon]="faSpinner" class="text-4xl text-accent animate-spin mb-4"></fa-icon>
+        <p class="text-lg text-text-secondary">Cargando examen...</p>
+    </div>
+    }
+
+    <!-- Pantalla de error -->
+    @if (error) {
+    <div class="flex flex-col items-center justify-center min-h-[60vh]">
+        <div
+            class="max-w-lg w-full bg-bordeaux-50 dark:bg-bordeaux-900 border border-bordeaux-300 dark:border-bordeaux-700 rounded-xl p-8 text-center">
+            <fa-icon [icon]="faExclamationTriangle" class="text-4xl text-bordeaux-500 mb-4"></fa-icon>
+            <h2 class="text-xl font-bold text-bordeaux-700 dark:text-bordeaux-300 mb-2">Error al cargar el examen</h2>
+            <p class="text-bordeaux-600 dark:text-bordeaux-400 mb-6">{{ error }}</p>
+            <a routerLink="/examenes"
+                class="inline-flex items-center gap-2 px-6 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-text-primary rounded-lg transition-colors duration-200">
+                <fa-icon [icon]="faHome"></fa-icon>
+                <span>Volver a Exámenes</span>
+            </a>
+        </div>
+    </div>
+    }
+
+    <!-- Contenido del examen -->
+    @if (!isLoading && !error && examen) {
+    <div class="bg-surface rounded-xl border border-border shadow-sm overflow-hidden">
+        <!-- Barra superior con información y timer -->
+        <div
+            class="p-4 bg-surface-alt border-b border-border flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-xl font-bold text-text-primary">{{ examen.titulo }}</h1>
+                <div class="flex items-center gap-4 mt-1">
+                    <span class="flex items-center text-text-secondary">
+                        <fa-icon [icon]="faQuestionCircle" class="mr-2"></fa-icon>
+                        {{ examen.numeroPreguntas }} preguntas
+                    </span>
+                    <span class="flex items-center text-text-secondary">
+                        <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
+                        {{ examen.duracionMinutos }} minutos
+                    </span>
+                </div>
+            </div>
+
+            <!-- Temporizador -->
+            <div class="w-full md:w-auto flex flex-col items-center">
+                <div
+                    class="flex items-center justify-center p-2 bg-surface rounded-xl border border-border shadow-sm w-32">
+                    <div class="text-2xl font-bold"
+                        [class.text-bordeaux-500]="tiempoRestante !== null && tiempoRestante < 60">
+                        {{ formatTiempo(tiempoRestante) }}
+                    </div>
+                </div>
+                <div class="w-full md:w-32 bg-surface-alt rounded-full h-2 mt-2 overflow-hidden">
+                    <div class="h-2 transition-all duration-200" [style.width.%]="getPorcentajeTiempo()"
+                        [class]="tiempoRestante !== null && tiempoRestante < 60 ? 'bg-bordeaux-500' : 'bg-accent'">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido principal: pregunta y respuestas -->
+        <div class="p-5">
+            <form [formGroup]="respuestasForm">
+                <!-- Pregunta actual -->
+                @if (examen.preguntas.length > 0) {
+                <div class="mb-6">
+                    <div class="bg-surface-alt p-4 rounded-lg border border-border mb-4">
+                        <h3 class="text-lg font-medium text-text-primary mb-1">Pregunta {{ currentQuestionIndex + 1 }}
+                            de {{ examen.preguntas.length }}</h3>
+                        <p class="text-text-primary">{{ examen.preguntas[currentQuestionIndex].texto }}</p>
+                    </div>
+
+                    <!-- Respuestas -->
+                    <div class="space-y-3">
+                        @for (respuesta of examen.preguntas[currentQuestionIndex].respuestas; track respuesta.id) {
+                        <div (click)="seleccionarRespuesta(examen.preguntas[currentQuestionIndex].id, respuesta.id)"
+                            class="p-4 border rounded-lg cursor-pointer transition-all duration-200" [class]="isRespuestaSeleccionada(examen.preguntas[currentQuestionIndex].id, respuesta.id) 
+                        ? 'border-accent bg-accent bg-opacity-10 dark:bg-opacity-20' 
+                        : 'border-border bg-surface hover:border-slate-400 dark:hover:border-slate-600'">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 rounded-full border flex items-center justify-center mr-3" [class]="isRespuestaSeleccionada(examen.preguntas[currentQuestionIndex].id, respuesta.id) 
+                               ? 'border-accent bg-accent text-white' 
+                               : 'border-slate-400 dark:border-slate-600'">
+                                    @if (isRespuestaSeleccionada(examen.preguntas[currentQuestionIndex].id,
+                                    respuesta.id)) {
+                                    <fa-icon [icon]="faCheck" class="text-xs"></fa-icon>
+                                    }
+                                </div>
+                                <div>{{ respuesta.texto }}</div>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Navegación entre preguntas -->
+                <div class="flex justify-between items-center mt-8">
+                    <button type="button" [disabled]="currentQuestionIndex === 0" (click)="preguntaAnterior()"
+                        class="flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-surface-alt transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <fa-icon [icon]="faArrowLeft"></fa-icon>
+                        <span>Anterior</span>
+                    </button>
+
+                    <div class="flex items-center">
+                        <!-- Indicadores de preguntas -->
+                        <div class="flex flex-wrap justify-center gap-2 mx-4">
+                            @for (pregunta of examen.preguntas; track pregunta.id; let i = $index) {
+                            <button type="button" (click)="currentQuestionIndex = i"
+                                class="w-8 h-8 flex items-center justify-center rounded-full text-sm transition-colors duration-200"
+                                [class]="getIndicadorClass(i)">
+                                {{ i + 1 }}
+                            </button>
+                            }
+                        </div>
+                    </div>
+
+                    <button type="button" [disabled]="currentQuestionIndex === examen.preguntas.length - 1"
+                        (click)="preguntaSiguiente()"
+                        class="flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-surface-alt transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span>Siguiente</span>
+                        <fa-icon [icon]="faArrowRight"></fa-icon>
+                    </button>
+                </div>
+                }
+            </form>
+        </div>
+
+        <!-- Barra inferior con progreso y botón finalizar -->
+        <div
+            class="p-4 bg-surface-alt border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-text-secondary">
+                <span class="font-medium">{{ getPreguntasRespondidas() }}</span> de <span class="font-medium">{{
+                    examen.preguntas.length }}</span> preguntas respondidas
+            </div>
+
+            <button type="button" (click)="finalizarExamen()" [disabled]="isSubmitting"
+                class="flex items-center gap-2 px-6 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                @if (isSubmitting) {
+                <fa-icon [icon]="faSpinner" class="animate-spin"></fa-icon>
+                <span>Enviando respuestas...</span>
+                } @else {
+                <fa-icon [icon]="faPaperPlane"></fa-icon>
+                <span>Finalizar examen</span>
+                }
+            </button>
+        </div>
+    </div>
+    }
+</div>

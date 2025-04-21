@@ -1,4 +1,3 @@
-// src/app/features/admin/especialidades/services/especialidades.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
@@ -6,9 +5,6 @@ import { Especialidad } from '../models/especialidad.model';
 import { environment } from '../../environments/environment';
 import { ApiResponse, PaginatedResponse } from '../models/api-response.model';
 
-/**
- * Servicio para gestionar las operaciones CRUD de especialidades
- */
 @Injectable({
   providedIn: 'root'
 })

@@ -1,4 +1,3 @@
-// src/environments/environment.ts
 // Este archivo se usará durante el desarrollo
 export const environment = {
   production: false,

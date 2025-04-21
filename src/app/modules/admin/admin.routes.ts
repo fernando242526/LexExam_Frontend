@@ -7,6 +7,10 @@ export const routes: Routes = [
         component: AdminComponent,
         children: [
             {
+                path: 'dashboard',
+                loadComponent: () => import('./components/dashboard/dashboard.component'),
+            },
+            {
                 path: 'especialidades',
                 loadComponent: () => import('./especialidades/view-especialidades/view-especialidades.component'),
             },

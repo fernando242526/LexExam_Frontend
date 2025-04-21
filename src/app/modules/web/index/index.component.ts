@@ -10,8 +10,6 @@ import {
   faArrowRight, 
   faQuoteLeft 
 } from '@fortawesome/free-solid-svg-icons';
-import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
-import { FooterComponent } from '../../../shared/components/footer/footer.component';
 
 @Component({
   selector: 'app-index',
@@ -19,8 +17,6 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
     CommonModule, 
     RouterModule, 
     FontAwesomeModule,
-    NavbarComponent,
-    FooterComponent
   ],
   templateUrl: './index.component.html',
   styleUrl: './index.component.scss'
@@ -118,5 +114,4 @@ export default class IndexComponent {
       description: 'Accede a cientos de preguntas y simulacros'
     }
   ];
-
 }

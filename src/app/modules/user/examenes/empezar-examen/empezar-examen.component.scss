@@ -1,0 +1,92 @@
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animación de entrada del contenedor principal */
+.bg-surface {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Efecto de hover para las respuestas */
+div[class*="cursor-pointer"] {
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Efecto visual para respuestas seleccionadas */
+div[class*="border-accent"] {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-accent);
+    opacity: 0.05;
+    pointer-events: none;
+  }
+}
+
+/* Animación para el timer */
+div[class*="transition-all"] {
+  transition-property: width, background-color;
+  transition-duration: 1s, 0.3s;
+  transition-timing-function: linear, ease;
+}
+
+/* Efecto de pulsación para botones */
+button {
+  position: relative;
+  overflow: hidden;
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+/* Mejoras visuales para los botones de navegación */
+button[class*="disabled:opacity-50"] {
+  transition: opacity 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+/* Indicadores de preguntas */
+button[class*="w-8"] {
+  transition: all 0.2s ease;
+
+  &:hover:not([class*="bg-accent"]):not([class*="bg-green-500"]) {
+    transform: scale(1.1);
+  }
+}

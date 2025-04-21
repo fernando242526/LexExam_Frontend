@@ -1,8 +1,5 @@
-import { Injectable, signal, computed, effect } from '@angular/core';
+import { Injectable, signal, computed, effect, Renderer2 } from '@angular/core';
 
-/**
- * @description Servicio para gestionar el tema de la aplicación (claro/oscuro)
- */
 @Injectable({
   providedIn: 'root'
 })
@@ -16,16 +13,16 @@ export class ThemeService {
   /** Signal computado que devuelve el nombre del tema actual */
   public currentTheme$ = computed(() => this.isDarkMode() ? 'dark' : 'light');
 
-  constructor() {
+  constructor(private renderer: Renderer2) {
     // Efecto para actualizar el DOM y localStorage cuando cambia el tema
     effect(() => {
       const isDark = this.isDarkMode();
       
       // Actualizar la clase en el elemento HTML
       if (isDark) {
-        document.documentElement.classList.add('dark');
+        this.renderer.addClass(document.documentElement, 'dark');
       } else {
-        document.documentElement.classList.remove('dark');
+        this.renderer.removeClass(document.documentElement, 'dark');
       }
       
       // Guardar preferencia en localStorage

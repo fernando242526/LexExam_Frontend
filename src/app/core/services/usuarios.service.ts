@@ -5,9 +5,6 @@ import { ApiResponse, PaginatedResponse } from '../models/api-response.model';
 import { environment } from '../../environments/environment';
 import { RolUsuario } from '../models/usuario.model';
 
-/**
- * Servicio para gestionar las operaciones de usuarios
- */
 @Injectable({
   providedIn: 'root'
 })

@@ -14,6 +14,13 @@ export const routes: Routes = [
         loadChildren: () => import('./modules/admin/admin.routes')
     },
     {
+        canActivate: [AuthGuard],
+        canMatch: [AuthGuard], // Este guard es importante en lazy loading
+        data: { roles: ['abogado'] },
+        path: 'user',
+        loadChildren: () => import('./modules/user/user.routes')
+    },
+    {
         path: 'auth',
         loadChildren: () => import('./modules/auth/auth.routes')
     }

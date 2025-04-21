@@ -10,9 +10,6 @@ import {
 import { environment } from '../../environments/environment';
 import { PaginatedResponse } from '../models/api-response.model';
 
-/**
- * Servicio para gestionar las operaciones CRUD de preguntas
- */
 @Injectable({
   providedIn: 'root'
 })

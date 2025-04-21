@@ -15,9 +15,6 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { UsuariosService } from '../../../../core/services/usuarios.service';
 import { RolUsuario } from '../../../../core/models/usuario.model';
 
-/**
- * Componente para mostrar el detalle de un usuario
- */
 @Component({
   selector: 'app-usuario-detail',
   imports: [CommonModule, FontAwesomeModule],

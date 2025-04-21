@@ -18,10 +18,6 @@ import { filter } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/services/auth.service';
 
-/**
- * Componente de sidebar para el panel de administración.
- * Proporciona navegación entre las diferentes secciones administrativas.
- */
 @Component({
   selector: 'app-sidebar',
   imports: [RouterModule, FontAwesomeModule, CommonModule],

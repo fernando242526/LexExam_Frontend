@@ -22,9 +22,6 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { BalotariosService } from '../../../../core/services/balotario.service';
 import { BalotarioSelect } from '../../../../core/models/balotario.model';
 
-/**
- * Componente para listar y gestionar temas
- */
 @Component({
   selector: 'app-view-temas',
   imports: [

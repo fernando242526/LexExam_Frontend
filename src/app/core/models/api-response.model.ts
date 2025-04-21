@@ -1,5 +1,3 @@
-// src/app/core/models/api-response.model.ts
-
 /**
  * Información de paginación para respuestas paginadas
  */
