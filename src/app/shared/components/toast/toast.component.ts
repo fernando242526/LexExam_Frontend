@@ -1,5 +1,3 @@
-
-// src/app/shared/components/ui/toast/toast.component.ts
 import { Component, inject, computed, NgZone, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate, state } from '@angular/animations';

@@ -96,5 +96,4 @@ export class PaginationComponentComponent implements OnChanges {
     
     this.pageChange.emit(page);
   }
-
 }

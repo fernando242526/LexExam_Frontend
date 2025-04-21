@@ -20,7 +20,6 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
-
   private themeService = inject(ThemeService);
   private authService = inject(AuthService);
   
@@ -65,5 +64,4 @@ export class NavbarComponent {
   closeMenu() {
     this.isMenuOpen = false;
   }
-
 }
