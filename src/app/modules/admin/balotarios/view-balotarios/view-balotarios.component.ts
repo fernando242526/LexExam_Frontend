@@ -22,9 +22,6 @@ import { EspecialidadesService } from '../../../../core/services/especialidades.
 import { BalotariosService } from '../../../../core/services/balotario.service';
 import { ToastService } from '../../../../core/services/toast.service';
 
-/**
- * Componente para listar y gestionar balotarios
- */
 @Component({
   selector: 'app-view-balotarios',
   imports: [

@@ -1,4 +1,3 @@
-// src/app/core/services/toast.service.ts
 import { Injectable, signal } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -7,25 +6,16 @@ export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 /** Interfaz para representar un toast */
 export interface Toast {
-  /** ID único del toast */
   id: string;
-  /** Mensaje principal */
   message: string;
-  /** Mensaje secundario o detalle opcional */
   detail?: string;
-  /** Tipo de toast */
   type: ToastType;
   /** Duración en milisegundos (0 para permanente) */
   duration: number;
-  /** Marca de tiempo de creación */
   timestamp: number;
-  /** Si es descartable manualmente */
   dismissible: boolean;
 }
 
-/**
- * Servicio para gestionar notificaciones toast en la aplicación
- */
 @Injectable({
   providedIn: 'root'
 })

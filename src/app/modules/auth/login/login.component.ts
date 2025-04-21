@@ -5,13 +5,8 @@ import { Router, RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthService } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
-
 import { faEnvelope, faLock, faUser, faEye, faEyeSlash, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 
-
-/**
- * Componente para la página de inicio de sesión
- */
 @Component({
   selector: 'app-login',
   imports: [CommonModule, ReactiveFormsModule, RouterModule, FontAwesomeModule],
@@ -68,7 +63,7 @@ export default class LoginComponent {
         if (response.rol === 'administrador') {
           this.router.navigate(['/admin']);
         } else {
-          this.router.navigate(['/admin']);
+          this.router.navigate(['/user']);
         }
       },
       error: (error) => {

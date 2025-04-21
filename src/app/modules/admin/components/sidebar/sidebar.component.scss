@@ -1,47 +1,46 @@
-/* src/app/shared/components/layout/admin-sidebar/admin-sidebar.component.scss */
 /* Estilos adicionales específicos si son necesarios */
 :host {
-    display: block;
-    height: 100%;
-    width: 280px;
+  display: block;
+  height: 100%;
+  width: 280px;
+}
+
+/* Animaciones para los elementos del menú */
+nav a {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: currentColor;
+    transition: width 0.3s ease;
   }
-  
-  /* Animaciones para los elementos del menú */
-  nav a {
-    position: relative;
-    overflow: hidden;
-    
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background-color: currentColor;
-      transition: width 0.3s ease;
-    }
-    
-    &:hover::after {
-      width: 100%;
-    }
+
+  &:hover::after {
+    width: 100%;
   }
-  
-  /* Estilización del scrollbar */
-  nav {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-slate-300) transparent;
-    
-    &::-webkit-scrollbar {
-      width: 5px;
-    }
-    
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    
-    &::-webkit-scrollbar-thumb {
-      background-color: var(--color-slate-300);
-      border-radius: 20px;
-    }
+}
+
+/* Estilización del scrollbar */
+nav {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-slate-300) transparent;
+
+  &::-webkit-scrollbar {
+    width: 5px;
   }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-slate-300);
+    border-radius: 20px;
+  }
+}

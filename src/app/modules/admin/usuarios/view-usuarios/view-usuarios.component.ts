@@ -19,9 +19,6 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { UsuariosService } from '../../../../core/services/usuarios.service';
 import { RolUsuario } from '../../../../core/models/usuario.model';
 
-/**
- * Componente para listar y gestionar usuarios
- */
 @Component({
   selector: 'app-view-usuarios',
   imports: [

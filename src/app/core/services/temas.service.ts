@@ -5,9 +5,6 @@ import { environment } from '../../environments/environment';
 import { ApiResponse, PaginatedResponse } from '../models/api-response.model';
 import { Tema, TemaSelect } from '../models/tema.model';
 
-/**
- * Servicio para gestionar las operaciones CRUD de temas
- */
 @Injectable({
   providedIn: 'root'
 })

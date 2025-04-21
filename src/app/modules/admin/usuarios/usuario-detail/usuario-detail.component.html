@@ -1,4 +1,3 @@
-<!-- src/app/modules/admin/usuarios/components/usuario-detail/usuario-detail.component.html -->
 <div class="p-6 max-w-7xl mx-auto">
     <!-- Encabezado de sección -->
     <div class="mb-6">
@@ -108,8 +107,7 @@
                 <div class="flex flex-col">
                     <span class="text-sm text-text-secondary">Último acceso</span>
                     <span class="font-medium text-text-primary">
-                        {{ usuario.ultimoLogin ? (usuario.ultimoLogin | date:'dd/MM/yyyy HH:mm') : 'Nunca ha accedido'
-                        }}
+                        {{ usuario.ultimoLogin ? (usuario.ultimoLogin | date:'dd/MM/yyyy HH:mm') : 'Nunca ha accedido' }}
                     </span>
                 </div>
             </div>

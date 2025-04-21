@@ -1,114 +1,114 @@
-<!-- src/app/shared/components/footer/footer.component.html -->
 <footer class="bg-surface pt-16 pb-8 border-t border-border">
-    <div class="container mx-auto px-4">
-      <!-- Sección superior del footer -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-        <!-- Logo e información -->
-        <div>
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-white">
-              <span class="text-lg font-bold">LE</span>
-            </div>
-            <div>
-              <h2 class="text-xl font-bold text-text-primary">LexExam</h2>
-              <p class="text-xs text-text-secondary">Tu camino al éxito legal</p>
-            </div>
+  <div class="container mx-auto px-4">
+    <!-- Sección superior del footer -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+      <!-- Logo e información -->
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-white">
+            <span class="text-lg font-bold">LE</span>
           </div>
-          <p class="text-text-secondary mb-6">
-            La plataforma líder en preparación de exámenes para abogados. Simulacros actualizados para superar exitosamente cualquier evaluación jurídica.
-          </p>
-          
-          <!-- Redes sociales -->
-          <div class="flex space-x-4">
-            <a href="#" class="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-text-secondary hover:text-accent transition-colors duration-200">
-              <!-- <fa-icon [icon]="faFacebook"></fa-icon> -->
-            </a>
-            <a href="#" class="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-text-secondary hover:text-accent transition-colors duration-200">
-              <!-- <fa-icon [icon]="faTwitter"></fa-icon> -->
-            </a>
-            <a href="#" class="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-text-secondary hover:text-accent transition-colors duration-200">
-              <!-- <fa-icon [icon]="faInstagram"></fa-icon> -->
-            </a>
-            <a href="#" class="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-text-secondary hover:text-accent transition-colors duration-200">
-              <!-- <fa-icon [icon]="faLinkedin"></fa-icon> -->
-            </a>
+          <div>
+            <h2 class="text-xl font-bold text-text-primary">LexExam</h2>
+            <p class="text-xs text-text-secondary">Tu camino al éxito legal</p>
           </div>
         </div>
-        
-        <!-- Enlaces rápidos -->
-        <div>
-          <h3 class="text-lg font-semibold text-text-primary mb-4">Enlaces rápidos</h3>
-          <ul class="space-y-3">
-            @for (link of quickLinks; track link.path) {
-              <li>
-                <a 
-                  [routerLink]="link.path" 
-                  class="text-text-secondary hover:text-accent transition-colors duration-200"
-                >
-                  {{ link.title }}
-                </a>
-              </li>
-            }
-          </ul>
-        </div>
-        
-        <!-- Especialidades -->
-        <div>
-          <h3 class="text-lg font-semibold text-text-primary mb-4">Especialidades</h3>
-          <ul class="space-y-3">
-            @for (speciality of specialities; track speciality.path) {
-              <li>
-                <a 
-                  [routerLink]="speciality.path" 
-                  class="text-text-secondary hover:text-accent transition-colors duration-200"
-                >
-                  {{ speciality.title }}
-                </a>
-              </li>
-            }
-          </ul>
-        </div>
-        
-        <!-- Contacto -->
-        <div>
-          <h3 class="text-lg font-semibold text-text-primary mb-4">Contacto</h3>
-          <ul class="space-y-3">
-            <li class="flex items-start">
-              <fa-icon [icon]="faMapMarker" class="text-accent mt-1 mr-3"></fa-icon>
-              <span class="text-text-secondary">Av. Abogados 123, Lima, Perú</span>
-            </li>
-            <li class="flex items-center">
-              <fa-icon [icon]="faPhone" class="text-accent mr-3"></fa-icon>
-              <span class="text-text-secondary">+51 123 456 789</span>
-            </li>
-            <li class="flex items-center">
-              <fa-icon [icon]="faEnvelope" class="text-accent mr-3"></fa-icon>
-              <a href="mailto:contacto@lexexam.com" class="text-text-secondary hover:text-accent transition-colors duration-200">
-                contacto&lexexam.com
-              </a>
-            </li>
-          </ul>
+        <p class="text-text-secondary mb-6">
+          La plataforma líder en preparación de exámenes para abogados. Simulacros actualizados para superar
+          exitosamente cualquier evaluación jurídica.
+        </p>
+
+        <!-- Redes sociales -->
+        <div class="flex space-x-4">
+          <a href="#"
+            class="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-text-secondary hover:text-accent transition-colors duration-200">
+            <!-- <fa-icon [icon]="faFacebook"></fa-icon> -->
+          </a>
+          <a href="#"
+            class="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-text-secondary hover:text-accent transition-colors duration-200">
+            <!-- <fa-icon [icon]="faTwitter"></fa-icon> -->
+          </a>
+          <a href="#"
+            class="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-text-secondary hover:text-accent transition-colors duration-200">
+            <!-- <fa-icon [icon]="faInstagram"></fa-icon> -->
+          </a>
+          <a href="#"
+            class="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-text-secondary hover:text-accent transition-colors duration-200">
+            <!-- <fa-icon [icon]="faLinkedin"></fa-icon> -->
+          </a>
         </div>
       </div>
-      
-      <!-- Separador -->
-      <div class="border-t border-border pt-8">
-        <div class="flex flex-col md:flex-row justify-between items-center">
-          <!-- Copyright -->
-          <p class="text-text-secondary text-sm mb-4 md:mb-0">
-            &copy; {{ currentYear }} LexExam. Todos los derechos reservados.
-          </p>
-          
-          <!-- Enlaces legales -->
-          <div class="flex space-x-6">
-            <a href="#" class="text-sm text-text-secondary hover:text-accent transition-colors duration-200">
-              Términos y Condiciones
+
+      <!-- Enlaces rápidos -->
+      <div>
+        <h3 class="text-lg font-semibold text-text-primary mb-4">Enlaces rápidos</h3>
+        <ul class="space-y-3">
+          @for (link of quickLinks; track link.path) {
+          <li>
+            <a [routerLink]="link.path" class="text-text-secondary hover:text-accent transition-colors duration-200">
+              {{ link.title }}
             </a>
-            <a href="#" class="text-sm text-text-secondary hover:text-accent transition-colors duration-200">
-              Política de Privacidad
+          </li>
+          }
+        </ul>
+      </div>
+
+      <!-- Especialidades -->
+      <div>
+        <h3 class="text-lg font-semibold text-text-primary mb-4">Especialidades</h3>
+        <ul class="space-y-3">
+          @for (speciality of specialities; track speciality.path) {
+          <li>
+            <a [routerLink]="speciality.path"
+              class="text-text-secondary hover:text-accent transition-colors duration-200">
+              {{ speciality.title }}
             </a>
-          </div>
+          </li>
+          }
+        </ul>
+      </div>
+
+      <!-- Contacto -->
+      <div>
+        <h3 class="text-lg font-semibold text-text-primary mb-4">Contacto</h3>
+        <ul class="space-y-3">
+          <li class="flex items-start">
+            <fa-icon [icon]="faMapMarker" class="text-accent mt-1 mr-3"></fa-icon>
+            <span class="text-text-secondary">Av. Abogados 123, Lima, Perú</span>
+          </li>
+          <li class="flex items-center">
+            <fa-icon [icon]="faPhone" class="text-accent mr-3"></fa-icon>
+            <span class="text-text-secondary">+51 123 456 789</span>
+          </li>
+          <li class="flex items-center">
+            <fa-icon [icon]="faEnvelope" class="text-accent mr-3"></fa-icon>
+            <a href="mailto:contacto@lexexam.com"
+              class="text-text-secondary hover:text-accent transition-colors duration-200">
+              contacto&lexexam.com
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Separador -->
+    <div class="border-t border-border pt-8">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <!-- Copyright -->
+        <p class="text-text-secondary text-sm mb-4 md:mb-0">
+          &copy; {{ currentYear }} LexExam. Todos los derechos reservados.
+        </p>
+
+        <!-- Enlaces legales -->
+        <div class="flex space-x-6">
+          <a href="#" class="text-sm text-text-secondary hover:text-accent transition-colors duration-200">
+            Términos y Condiciones
+          </a>
+          <a href="#" class="text-sm text-text-secondary hover:text-accent transition-colors duration-200">
+            Política de Privacidad
+          </a>
         </div>
       </div>
     </div>
-  </footer>
+  </div>
+</footer>

@@ -1,4 +1,3 @@
-<!-- src/app/features/auth/pages/login/auth-login.component.html -->
 <div class="min-h-screen flex items-center justify-center bg-background">
   <div class="w-full max-w-md p-8 mx-auto rounded-xl shadow-lg bg-surface">
     <!-- Encabezado -->
@@ -33,10 +32,13 @@
           </div>
           <input type="text" id="username" formControlName="username"
             class="w-full pl-10 pr-3 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
-            placeholder="Ingresa tu nombre de usuario" autocomplete="username">
+            placeholder="Ingresa tu nombre de usuario" autocomplete="username" />
         </div>
-        @if (loginForm.get('username')?.invalid && loginForm.get('username')?.touched) {
-        <p class="text-bordeaux-500 text-sm mt-1">El nombre de usuario es obligatorio</p>
+        @if (loginForm.get('username')?.invalid &&
+        loginForm.get('username')?.touched) {
+        <p class="text-bordeaux-500 text-sm mt-1">
+          El nombre de usuario es obligatorio
+        </p>
         }
       </div>
 
@@ -51,13 +53,14 @@
           </div>
           <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
             class="w-full pl-10 pr-10 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
-            placeholder="Ingresa tu contraseña" autocomplete="current-password">
+            placeholder="Ingresa tu contraseña" autocomplete="current-password" />
           <button type="button" (click)="togglePasswordVisibility()"
             class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-secondary hover:text-text-primary">
             <fa-icon [icon]="showPassword ? faEyeSlash : faEye"></fa-icon>
           </button>
         </div>
-        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+        @if (loginForm.get('password')?.invalid &&
+        loginForm.get('password')?.touched) {
         <p class="text-bordeaux-500 text-sm mt-1">
           <span *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es obligatoria</span>
           <span *ngIf="loginForm.get('password')?.errors?.['minlength']">La contraseña debe tener al menos 8
@@ -86,7 +89,8 @@
 
       <!-- Enlaces adicionales -->
       <div class="flex justify-between text-sm pt-2">
-        <a href="#" class="text-accent hover:text-accent-hover transition-colors duration-200">
+        <a routerLink="/auth/forgot-password"
+          class="text-accent hover:text-accent-hover transition-colors duration-200">
           ¿Olvidaste tu contraseña?
         </a>
         <a routerLink="/auth/register" class="text-accent hover:text-accent-hover transition-colors duration-200">

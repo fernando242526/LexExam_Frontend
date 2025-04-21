@@ -26,9 +26,6 @@ import { TemaSelect } from '../../../../core/models/tema.model';
 import { NivelDificultad, Pregunta, Respuesta } from '../../../../core/models/pregunta.model';
 import { PreguntasService } from '../../../../core/services/preguntas.service';
 
-/**
- * Componente para listar y gestionar preguntas
- */
 @Component({
   selector: 'app-view-preguntas',
   imports: [

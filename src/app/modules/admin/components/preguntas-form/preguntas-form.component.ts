@@ -13,7 +13,6 @@ import {
   faTimes
 } from '@fortawesome/free-solid-svg-icons';
 import { finalize, switchMap, tap } from 'rxjs/operators';
-
 import { of } from 'rxjs';
 import { PreguntasService } from '../../../../core/services/preguntas.service';
 import { EspecialidadesService } from '../../../../core/services/especialidades.service';
