@@ -28,7 +28,7 @@
                 </button>
 
                 <!-- Botón crear examen -->
-                <a routerLink="/examenes/crear"
+                <a routerLink="/user/examenes/crear"
                     class="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors duration-200 ml-auto whitespace-nowrap">
                     <fa-icon [icon]="faBook"></fa-icon>
                     <span>Nuevo Examen</span>
@@ -105,7 +105,7 @@
         <fa-icon [icon]="faBook" class="text-4xl text-text-secondary mb-4"></fa-icon>
         <h3 class="text-xl font-semibold text-text-primary mb-2">No hay exámenes disponibles</h3>
         <p class="text-text-secondary mb-6">No se encontraron exámenes que coincidan con los filtros aplicados.</p>
-        <a routerLink="/examenes/crear"
+        <a routerLink="/user/examenes/crear"
             class="inline-flex items-center gap-2 px-6 py-3 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors duration-200">
             <fa-icon [icon]="faBook"></fa-icon>
             <span>Crear nuevo examen</span>
@@ -115,7 +115,7 @@
 
     <!-- Grid de tarjetas de exámenes -->
     @if (!isLoading && examenes.length > 0) {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
         @for (examen of examenes; track examen.id) {
         <div
             class="bg-surface rounded-xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
@@ -126,7 +126,7 @@
                     <span class="font-medium text-sm line-clamp-1" title="{{ examen.tema?.titulo }}">{{
                         examen.tema?.titulo }}</span>
                 </div>
-                <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getEstadoClass(examen.estado)">
+                <span class="px-2 py-1 w-fit whitespace-nowrap rounded-full text-xs font-medium" [class]="getEstadoClass(examen.estado)">
                     {{ getEstadoText(examen.estado) }}
                 </span>
             </div>
@@ -164,19 +164,19 @@
                         <span>Iniciar Examen</span>
                     </a>
                     } @else if (examen.estado === estadoExamen.INICIADO) {
-                    <a [routerLink]="['examenes/iniciar', examen.id]"
+                    <a [routerLink]="['iniciar', examen.id]"
                         class="flex items-center justify-center gap-2 w-full py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition-colors duration-200">
                         <fa-icon [icon]="faPlay"></fa-icon>
                         <span>Continuar Examen</span>
                     </a>
                     } @else if (examen.estado === estadoExamen.FINALIZADO) {
-                    <a [routerLink]="['examenes/resultado', examen.id]"
+                    <a [routerLink]="['resultado', examen.id]"
                         class="flex items-center justify-center gap-2 w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200">
                         <fa-icon [icon]="faCircleCheck"></fa-icon>
                         <span>Ver Resultados</span>
                     </a>
                     } @else {
-                    <a [routerLink]="['examenes/resultado', examen.id]"
+                    <a [routerLink]="['resultado', examen.id]"
                         class="flex items-center justify-center gap-2 w-full py-2 bg-bordeaux-500 hover:bg-bordeaux-600 text-white rounded-lg transition-colors duration-200">
                         <fa-icon [icon]="faExclamationTriangle"></fa-icon>
                         <span>Ver Detalles</span>

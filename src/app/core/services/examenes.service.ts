@@ -94,8 +94,8 @@ export class ExamenesService {
   getResultadoExamen(examenId: string): Observable<ResultadoExamen> {
     return this.http.get<ApiResponse<ResultadoExamen>>(`${this.apiUrl}/${examenId}/resultado`)
       .pipe(
-        map(response => response.data)
-      );
+        map(response => response.data),
+      );      
   }
   
   /**

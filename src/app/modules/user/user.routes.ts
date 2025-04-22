@@ -15,6 +15,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./examenes/view-examenes/view-examenes.component'),
             },
             {
+                path: 'examenes/crear',
+                loadComponent: () => import('./examenes/crear-examen/crear-examen.component'),
+            },
+            {
                 path: 'examenes/iniciar/:id',
                 loadComponent: () => import('./examenes/empezar-examen/empezar-examen.component'),
             },

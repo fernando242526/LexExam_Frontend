@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, JsonPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -143,6 +143,7 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
         this.examen = examen;
         this.tiempoRestante = examen.duracionMinutos * 60; // en segundos
         this.tiempoTotal = examen.duracionMinutos * 60;
+        console.log('examen recibido:', examen);
         
         // Crear FormGroup con todas las preguntas
         this.crearFormularioRespuestas(examen.preguntas);
@@ -175,12 +176,12 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
           'Sesión de examen no disponible', 
           'No se pudieron recuperar las preguntas de un examen en progreso. Por favor, inicie un nuevo examen.'
         );
-        this.router.navigate(['/examenes']);
+        this.router.navigate(['/user/examenes']);
         
         // En un caso real, obtendrías las preguntas de algún modo y continuarías
-        // this.examen = { ...examen, preguntas: [] };
-        // this.crearFormularioRespuestas(this.examen.preguntas);
-        // this.isLoading = false;
+        this.examen = { ...examen, preguntas: [] };
+        this.crearFormularioRespuestas(this.examen.preguntas);
+        this.isLoading = false;
       },
       error: (err) => {
         console.error('Error obteniendo examen:', err);
@@ -324,12 +325,15 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
           'Examen completado', 
           `Ha obtenido ${resultado.puntuacionTotal} puntos (${resultado.porcentajeAcierto}% de aciertos)`
         );
+        console.log('Examen enviado, estas son las respuestas',this.examenId, respuestas);
         
         // Redirigir a la página de resultados
-        this.router.navigate(['/examenes/resultado', this.examen?.id]);
+        this.router.navigate(['/user/examenes/resultado', this.examen?.id]);
       },
       error: (err) => {
         console.error('Error enviando respuestas:', err);
+        console.log(this.examenId, 'Respuestas del examen enviado con error:', respuestas);
+        
         this.toastService.error(
           'Error al enviar respuestas', 
           'No se pudo completar el examen. Por favor, intente de nuevo.'
