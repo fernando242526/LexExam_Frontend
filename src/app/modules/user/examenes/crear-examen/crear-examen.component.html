@@ -1,0 +1,228 @@
+<div class="p-6 max-w-7xl mx-auto">
+    <!-- Encabezado de sección -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-text-primary">Crear Nuevo Examen</h1>
+        <p class="text-text-secondary mt-1">Configura un examen personalizado para poner a prueba tus conocimientos</p>
+    </div>
+
+    <!-- Mensaje de error -->
+    @if (error) {
+    <div
+        class="mb-6 p-4 rounded-lg bg-bordeaux-50 dark:bg-bordeaux-900 border border-bordeaux-300 dark:border-bordeaux-700 text-bordeaux-700 dark:text-bordeaux-300 flex items-center gap-3">
+        <fa-icon [icon]="faExclamationTriangle" class="text-bordeaux-500"></fa-icon>
+        <span>{{ error }}</span>
+    </div>
+    }
+
+    <!-- Formulario -->
+    <form [formGroup]="examenForm" (ngSubmit)="onSubmit()"
+        class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
+        <!-- Selección de tema (pasos) -->
+        <div class="border-b border-border">
+            <div class="p-5">
+                <h2 class="text-lg font-semibold text-text-primary mb-4">1. Selecciona el tema del examen</h2>
+
+                <!-- Selector en cascada -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Especialidad -->
+                    <div>
+                        <label for="especialidadId" class="block text-sm font-medium text-text-secondary mb-2">
+                            Especialidad <span class="text-bordeaux-500">*</span>
+                        </label>
+                        <select id="especialidadId" formControlName="especialidadId"
+                            class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+                            [class.border-bordeaux-500]="examenForm.get('especialidadId')?.invalid && examenForm.get('especialidadId')?.touched">
+                            <option value="" disabled>{{ isLoadingEspecialidades ? 'Cargando...' : 'Seleccione especialidad' }}</option>
+                            @for (especialidad of especialidades; track especialidad.id) {
+                            <option [value]="especialidad.id">{{ especialidad.nombre }}</option>
+                            }
+                        </select>
+                        @if (examenForm.get('especialidadId')?.invalid && examenForm.get('especialidadId')?.touched) {
+                        <p class="mt-2 text-sm text-bordeaux-500">
+                            Debe seleccionar una especialidad
+                        </p>
+                        }
+                    </div>
+
+                    <!-- Balotario -->
+                    <div>
+                        <label for="balotarioId" class="block text-sm font-medium text-text-secondary mb-2">
+                            Balotario <span class="text-bordeaux-500">*</span>
+                        </label>
+                        <select id="balotarioId" formControlName="balotarioId"
+                            class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+                            [class.border-bordeaux-500]="examenForm.get('balotarioId')?.invalid && examenForm.get('balotarioId')?.touched">
+                            <option value="" disabled>
+                                @if (isLoadingBalotarios) {
+                                Cargando balotarios...
+                                } @else if (!examenForm.get('especialidadId')?.value) {
+                                Primero seleccione una especialidad
+                                } @else if (balotarios.length === 0) {
+                                No hay balotarios para esta especialidad
+                                } @else {
+                                Seleccione un balotario
+                                }
+                            </option>
+                            @for (balotario of balotarios; track balotario.id) {
+                            <option [value]="balotario.id">{{ balotario.nombre }}</option>
+                            }
+                        </select>
+                        @if (examenForm.get('balotarioId')?.invalid && examenForm.get('balotarioId')?.touched) {
+                        <p class="mt-2 text-sm text-bordeaux-500">
+                            Debe seleccionar un balotario
+                        </p>
+                        }
+                    </div>
+
+                    <!-- Tema -->
+                    <div>
+                        <label for="temaId" class="block text-sm font-medium text-text-secondary mb-2">
+                            Tema <span class="text-bordeaux-500">*</span>
+                        </label>
+                        <select id="temaId" formControlName="temaId"
+                            class="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary"
+                            [class.border-bordeaux-500]="examenForm.get('temaId')?.invalid && examenForm.get('temaId')?.touched">
+                            <option value="" disabled>
+                                @if (isLoadingTemas) {
+                                Cargando temas...
+                                } @else if (!examenForm.get('balotarioId')?.value) {
+                                Primero seleccione un balotario
+                                } @else if (temas.length === 0) {
+                                No hay temas para este balotario
+                                } @else {
+                                Seleccione un tema
+                                }
+                            </option>
+                            @for (tema of temas; track tema.id) {
+                            <option [value]="tema.id">{{ tema.titulo }}</option>
+                            }
+                        </select>
+                        @if (examenForm.get('temaId')?.invalid && examenForm.get('temaId')?.touched) {
+                        <p class="mt-2 text-sm text-bordeaux-500">
+                            Debe seleccionar un tema
+                        </p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Información del tema seleccionado -->
+                @if (temaSeleccionado) {
+                <div class="mt-6 p-4 rounded-lg bg-surface-alt border border-border">
+                    <h3 class="font-medium text-text-primary">{{ temaSeleccionado.titulo }}</h3>
+                    @if (temaSeleccionado.descripcion) {
+                    <p class="mt-2 text-text-secondary">{{ temaSeleccionado.descripcion }}</p>
+                    }
+                    <div class="flex items-center mt-3 text-text-secondary text-sm">
+                        <fa-icon [icon]="faBookOpen" class="mr-1"></fa-icon>
+                        <span>{{ temaSeleccionado.balotario?.nombre || 'Balotario no especificado' }}</span>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Configuración del examen -->
+        <div class="border-b border-border">
+            <div class="p-5">
+                <h2 class="text-lg font-semibold text-text-primary mb-4">2. Configura tu examen</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Duración del examen -->
+                    <div>
+                        <label for="duracionMinutos" class="block text-sm font-medium text-text-secondary mb-2">
+                            Duración en minutos <span class="text-bordeaux-500">*</span>
+                        </label>
+                        <div class="flex items-center">
+                            <button type="button" (click)="decrementarDuracion()"
+                                class="px-3 py-2 border border-border rounded-l-lg bg-surface-alt text-text-primary hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200">
+                                <fa-icon [icon]="faMinus"></fa-icon>
+                            </button>
+                            <input type="number" id="duracionMinutos" formControlName="duracionMinutos"
+                                class="w-full px-4 py-2 border-y border-border focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary text-center"
+                                min="5" max="120" step="5">
+                            <button type="button" (click)="incrementarDuracion()"
+                                class="px-3 py-2 border border-border rounded-r-lg bg-surface-alt text-text-primary hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200">
+                                <fa-icon [icon]="faPlus"></fa-icon>
+                            </button>
+                        </div>
+                        @if (examenForm.get('duracionMinutos')?.invalid && examenForm.get('duracionMinutos')?.touched) {
+                        <p class="mt-2 text-sm text-bordeaux-500">
+                            <span *ngIf="examenForm.get('duracionMinutos')?.errors?.['required']">La duración es
+                                obligatoria</span>
+                            <span *ngIf="examenForm.get('duracionMinutos')?.errors?.['min']">La duración mínima es 5
+                                minutos</span>
+                            <span *ngIf="examenForm.get('duracionMinutos')?.errors?.['max']">La duración máxima es 120
+                                minutos</span>
+                        </p>
+                        } @else {
+                        <p class="mt-1 text-sm text-text-secondary">
+                            Recomendado: 30-60 minutos
+                        </p>
+                        }
+                    </div>
+
+                    <!-- Número de preguntas -->
+                    <div>
+                        <label for="numeroPreguntas" class="block text-sm font-medium text-text-secondary mb-2">
+                            Número de preguntas <span class="text-bordeaux-500">*</span>
+                        </label>
+                        <div class="flex items-center">
+                            <button type="button" (click)="decrementarPreguntas()"
+                                class="px-3 py-2 border border-border rounded-l-lg bg-surface-alt text-text-primary hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200">
+                                <fa-icon [icon]="faMinus"></fa-icon>
+                            </button>
+                            <input type="number" id="numeroPreguntas" formControlName="numeroPreguntas"
+                                class="w-full px-4 py-2 border-y border-border focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 bg-surface-alt text-text-primary text-center"
+                                min="5" max="50" step="1">
+                            <button type="button" (click)="incrementarPreguntas()"
+                                class="px-3 py-2 border border-border rounded-r-lg bg-surface-alt text-text-primary hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200">
+                                <fa-icon [icon]="faPlus"></fa-icon>
+                            </button>
+                        </div>
+                        @if (examenForm.get('numeroPreguntas')?.invalid && examenForm.get('numeroPreguntas')?.touched) {
+                        <p class="mt-2 text-sm text-bordeaux-500">
+                            <span *ngIf="examenForm.get('numeroPreguntas')?.errors?.['required']">El número de preguntas
+                                es obligatorio</span>
+                            <span *ngIf="examenForm.get('numeroPreguntas')?.errors?.['min']">Mínimo 5 preguntas</span>
+                            <span *ngIf="examenForm.get('numeroPreguntas')?.errors?.['max']">Máximo 50 preguntas</span>
+                        </p>
+                        } @else {
+                        <p class="mt-1 text-sm text-text-secondary">
+                            La disponibilidad depende del tema seleccionado
+                        </p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen y botones de acción -->
+        <div class="p-5 bg-surface-alt">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h3 class="font-medium text-text-primary">Resumen del examen</h3>
+                    <p class="text-sm text-text-secondary mt-1">
+                        {{ examenForm.get('numeroPreguntas')?.value || 0 }} preguntas
+                        • {{ examenForm.get('duracionMinutos')?.value || 0 }} minutos
+                    </p>
+                </div>
+                <div class="flex gap-3">
+                    <a routerLink="/user/examenes"
+                        class="px-6 py-2 border border-border rounded-lg hover:bg-border transition-colors duration-200">
+                        Cancelar
+                    </a>
+                    <button type="submit" [disabled]="examenForm.invalid || isSubmitting"
+                        class="flex items-center gap-2 px-6 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        @if (isSubmitting) {
+                        <fa-icon [icon]="faSpinner" class="animate-spin"></fa-icon>
+                        <span>Creando...</span>
+                        } @else {
+                        <fa-icon [icon]="faCheck"></fa-icon>
+                        <span>Crear examen</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

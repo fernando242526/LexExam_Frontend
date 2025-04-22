@@ -79,6 +79,7 @@ export default class ExamenResultadoComponent implements OnInit {
     this.examenesService.getResultadoExamen(examenId).subscribe({
       next: (resultado) => {
         this.resultado = resultado;
+        console.log('Resultado del examen:', resultado);
         this.isLoading = false;
       },
       error: (err) => {
@@ -117,13 +118,13 @@ export default class ExamenResultadoComponent implements OnInit {
   crearNuevoExamen(): void {
     if (this.resultado?.examen?.temaId) {
       // Redirigir a la página de creación de examen con el mismo tema preseleccionado
-      this.router.navigate(['/examenes/crear'], { 
+      this.router.navigate(['/user/examenes/crear'], { 
         queryParams: { 
           temaId: this.resultado.examen.temaId 
         } 
       });
     } else {
-      this.router.navigate(['/examenes/crear']);
+      this.router.navigate(['user//examenes/crear']);
     }
   }
   

@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, effect, Renderer2 } from '@angular/core';
+import { Injectable, signal, computed, effect, RendererFactory2, Renderer2 } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,11 @@ export class ThemeService {
   /** Signal computado que devuelve el nombre del tema actual */
   public currentTheme$ = computed(() => this.isDarkMode() ? 'dark' : 'light');
 
-  constructor(private renderer: Renderer2) {
+  private renderer: Renderer2;
+
+  constructor(private rendererFactory: RendererFactory2) {
+    // Generar instancia de Renderer2 desde el factory
+    this.renderer = rendererFactory.createRenderer(null, null);
     // Efecto para actualizar el DOM y localStorage cuando cambia el tema
     effect(() => {
       const isDark = this.isDarkMode();

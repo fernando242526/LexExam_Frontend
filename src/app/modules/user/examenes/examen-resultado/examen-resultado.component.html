@@ -16,7 +16,7 @@
             <h2 class="text-xl font-bold text-bordeaux-700 dark:text-bordeaux-300 mb-2">Error al cargar los resultados
             </h2>
             <p class="text-bordeaux-600 dark:text-bordeaux-400 mb-6">{{ error }}</p>
-            <a routerLink="/examenes"
+            <a routerLink="/user/examenes"
                 class="inline-flex items-center gap-2 px-6 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-text-primary rounded-lg transition-colors duration-200">
                 <fa-icon [icon]="faHome"></fa-icon>
                 <span>Volver a Exámenes</span>
@@ -30,7 +30,7 @@
     <!-- Encabezado con acciones -->
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-text-primary">Resultados del Examen</h1>
-        <a routerLink="/examenes"
+        <a routerLink="/user/examenes"
             class="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-surface-alt transition-colors duration-200">
             <fa-icon [icon]="faArrowLeft"></fa-icon>
             <span>Volver a exámenes</span>
@@ -212,7 +212,7 @@
         <!-- Botones de acción -->
         <div
             class="bg-surface-alt border-t border-border p-5 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <a routerLink="/examenes"
+            <a routerLink="/user/examenes"
                 class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2 border border-border rounded-lg hover:bg-surface transition-colors duration-200">
                 <fa-icon [icon]="faHome"></fa-icon>
                 <span>Volver a exámenes</span>

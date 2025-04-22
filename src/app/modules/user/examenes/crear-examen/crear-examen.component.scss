@@ -1,0 +1,121 @@
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animación de entrada del contenedor principal */
+.bg-surface {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Efectos de entrada para campos de formulario */
+input,
+select {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    box-shadow: 0 0 0 2px rgba(var(--color-accent), 0.2);
+    border-color: var(--color-accent);
+  }
+
+  &:hover:not(:focus) {
+    border-color: var(--color-slate-400);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+}
+
+/* Animación para botones */
+button {
+  position: relative;
+  overflow: hidden;
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+/* Estilos específicos para botones incrementales */
+button[class*="rounded-l-lg"],
+button[class*="rounded-r-lg"] {
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--color-slate-200);
+  }
+}
+
+/* Animación para el botón de envío */
+button[type="submit"] {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+  }
+
+  &:hover:not(:disabled)::after {
+    transform: translateX(100%);
+  }
+}
+
+/* Efecto de hover para la información del tema */
+div[class*="rounded-lg"] {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Estilo específico para inputs numéricos */
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
