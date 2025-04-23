@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { CommonModule, JsonPipe } from '@angular/common';
+import { CommonModule, JsonPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -14,14 +14,14 @@ import {
   faPaperPlane,
   faHome
 } from '@fortawesome/free-solid-svg-icons';
-import { finalize, interval, Subscription } from 'rxjs';
-
+import { debounceTime, finalize, interval, Subject, Subscription } from 'rxjs';
 import { ToastService } from '../../../../core/services/toast.service';
 import { 
   ExamenConPreguntas, 
   EstadoExamen, 
   PreguntaExamen, 
-  RespuestaUsuarioDto 
+  RespuestaUsuarioDto, 
+  RespuestaPreviaDto
 } from '../../../../core/models/examenes.model';
 import { ExamenesService } from '../../../../core/services/examenes.service';
 
@@ -31,7 +31,7 @@ import { ExamenesService } from '../../../../core/services/examenes.service';
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
-    FontAwesomeModule
+    FontAwesomeModule,
   ],
   templateUrl: './empezar-examen.component.html',
   styleUrl: './empezar-examen.component.scss'
@@ -60,18 +60,25 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
   error: string | null = null;
   examenId: string | null = null;
   examen: ExamenConPreguntas | null = null;
-  
+
   // Formulario para capturar respuestas
   respuestasForm: FormGroup;
-  
+
   // Control de pregunta actual
   currentQuestionIndex = 0;
+  previousQuestionIndex = 0;
   
   // Control de tiempo
   tiempoRestante: number | null = null;
   tiempoTotal: number = 0;
   tiempoAgotado = false;
   timerSubscription?: Subscription;
+  
+  // Para el guardado automático
+  private saveSubject = new Subject<string>();
+  private saveSubscription?: Subscription;
+  isSaving = false;
+  lastSaveTime: Date | null = null;
   
   constructor() {
     this.respuestasForm = this.fb.group({});
@@ -86,12 +93,31 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
       this.error = 'ID de examen no especificado';
       this.isLoading = false;
     }
+
+    // Configurar el guardado automático con debounce
+    this.saveSubscription = this.saveSubject.pipe(
+      debounceTime(2000) // Esperar 2 segundos después de la última acción
+    ).subscribe(() => {
+      if (this.examen && !this.isSubmitting && !this.isSaving) {
+        this.guardarRespuestasParciales();
+      }
+    });
   }
   
   ngOnDestroy(): void {
     // Detener el timer cuando se destruye el componente
     if (this.timerSubscription) {
       this.timerSubscription.unsubscribe();
+    }
+
+    // Detener suscripción de guardado
+    if (this.saveSubscription) {
+      this.saveSubscription.unsubscribe();
+    }
+    
+    // Guardar una última vez al salir
+    if (this.examen && !this.isSubmitting) {
+      this.guardarRespuestasParciales(true);
     }
   }
   
@@ -112,7 +138,7 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
           this.tiempoRestante = estado.tiempoRestante;
           this.tiempoTotal = estado.tiempoTotal;
           
-          // Llamamos al método continuarExamen en lugar de obtenerExamen
+          // Llamamos al método continuarExamen
           this.continuarExamen(examenId);
           
           // Iniciamos el contador
@@ -173,6 +199,11 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
         // Crear FormGroup con todas las preguntas
         this.crearFormularioRespuestas(examen.preguntas);
         
+        // Si hay respuestas previas, llenar el formulario con ellas
+        if (examen.respuestasPrevias && examen.respuestasPrevias.length > 0) {
+          this.cargarRespuestasPrevias(examen.respuestasPrevias);
+        }
+        
         this.isLoading = false;
         
         // Mostrar notificación de éxito
@@ -185,6 +216,17 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
         console.error('Error continuando examen:', err);
         this.error = 'Error al continuar el examen. Por favor, intente de nuevo.';
         this.isLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Método para cargar respuestas previas en el formulario
+   */
+  cargarRespuestasPrevias(respuestasPrevias: RespuestaPreviaDto[]): void {
+    respuestasPrevias.forEach(respuesta => {
+      if (respuesta.respuestaId) {
+        this.respuestasForm.get(`pregunta_${respuesta.preguntaId}`)?.setValue(respuesta.respuestaId);
       }
     });
   }
@@ -204,8 +246,15 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
   crearFormularioRespuestas(preguntas: PreguntaExamen[]): void {
     const group: any = {};
     
-    preguntas.forEach((pregunta, index) => {
-      group[`pregunta_${pregunta.id}`] = this.fb.control('');
+    preguntas.forEach((pregunta) => {
+      const control = this.fb.control('');
+      group[`pregunta_${pregunta.id}`] = control;
+      
+      // Agregar listener a cada control para detectar cambios
+      control.valueChanges.subscribe(value => {
+        // Programar guardado cuando se selecciona una respuesta
+        this.triggerSave('respuesta-cambiada');
+      });
     });
     
     this.respuestasForm = this.fb.group(group);
@@ -254,7 +303,9 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
    */
   preguntaAnterior(): void {
     if (this.currentQuestionIndex > 0) {
+      this.previousQuestionIndex = this.currentQuestionIndex;
       this.currentQuestionIndex--;
+      this.triggerSave('cambio-pregunta');
     }
   }
   
@@ -263,7 +314,22 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
    */
   preguntaSiguiente(): void {
     if (this.examen && this.currentQuestionIndex < this.examen.preguntas.length - 1) {
+      this.previousQuestionIndex = this.currentQuestionIndex;
       this.currentQuestionIndex++;
+      this.triggerSave('cambio-pregunta');
+    }
+  }
+
+  /**
+   * Navega directamente a una pregunta específica
+   */
+  cambiarAPregunta(index: number): void {
+    if (this.examen && index >= 0 && index < this.examen.preguntas.length) {
+      if (index !== this.currentQuestionIndex) {
+        this.previousQuestionIndex = this.currentQuestionIndex;
+        this.currentQuestionIndex = index;
+        this.triggerSave('cambio-pregunta');
+      }
     }
   }
   
@@ -272,6 +338,54 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
    */
   seleccionarRespuesta(preguntaId: string, respuestaId: string): void {
     this.respuestasForm.get(`pregunta_${preguntaId}`)?.setValue(respuestaId);
+  }
+
+  /**
+   * Programa un guardado automático
+   */
+  private triggerSave(motivo: string): void {
+    console.log(`Programando guardado automático por: ${motivo}`);
+    this.saveSubject.next(motivo);
+  }
+
+  /**
+   * Guarda las respuestas actuales sin finalizar el examen
+   */
+  private guardarRespuestasParciales(forzar: boolean = false): void {
+    if (!this.examen || this.isSubmitting || this.isSaving) return;
+    
+    this.isSaving = true;
+    
+    // Reunir todas las respuestas actuales
+    const respuestas: RespuestaUsuarioDto[] = [];
+    
+    this.examen.preguntas.forEach(pregunta => {
+      const respuestaId = this.respuestasForm.get(`pregunta_${pregunta.id}`)?.value || null;
+      
+      respuestas.push({
+        preguntaId: pregunta.id,
+        respuestaId
+      });
+    });
+    
+    // Guardar en el servidor
+    this.examenesService.guardarRespuestasParciales({
+      examenId: this.examen.id,
+      respuestas
+    }).pipe(
+      finalize(() => {
+        this.isSaving = false;
+        this.lastSaveTime = new Date();
+      })
+    ).subscribe({
+      next: (respuesta) => {
+        console.log('Respuestas guardadas automáticamente.');
+      },
+      error: (err) => {
+        console.error('Error guardando respuestas automáticamente:', err);
+        // No mostramos error al usuario para no interrumpir su experiencia
+      }
+    });
   }
   
   /**

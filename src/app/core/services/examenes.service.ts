@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { CrearExamenDto, EnviarRespuestasDto, EstadoExamenDto, Examen, ExamenConPreguntas, FiltroExamen, IniciarExamenDto, ResultadoExamen } from '../models/examenes.model';
+import { CrearExamenDto, EnviarRespuestasDto, EstadoExamenDto, Examen, ExamenConPreguntas, ExamenContinuacion, FiltroExamen, GuardarRespuestasParcialesDto, IniciarExamenDto, ResultadoExamen } from '../models/examenes.model';
 import { ApiResponse, PaginatedResponse } from '../models/api-response.model';
 
 @Injectable({
@@ -81,8 +81,19 @@ export class ExamenesService {
   /**
    * Continúa un examen ya iniciado y obtiene sus preguntas
    */
-  continuarExamen(examenId: string): Observable<ExamenConPreguntas> {
-    return this.http.get<ApiResponse<ExamenConPreguntas>>(`${this.apiUrl}/${examenId}/continuar`)
+  continuarExamen(examenId: string): Observable<ExamenContinuacion> {
+    return this.http.get<ApiResponse<ExamenContinuacion>>(`${this.apiUrl}/${examenId}/continuar`)
+      .pipe(
+        map(response => response.data)
+      );
+  }
+
+  /**
+   * Guarda respuestas parciales de un examen en progreso
+   * Este método no finaliza el examen, solo almacena las respuestas actuales
+   */
+  guardarRespuestasParciales(data: GuardarRespuestasParcialesDto): Observable<{ mensaje: string }> {
+    return this.http.post<ApiResponse<{ mensaje: string }>>(`${this.apiUrl}/guardar-respuestas-parciales`, data)
       .pipe(
         map(response => response.data)
       );

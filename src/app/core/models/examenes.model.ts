@@ -103,3 +103,18 @@ export interface FiltroExamen {
   sortBy?: string;
   order?: 'ASC' | 'DESC';
 }
+
+// Interfaz para las respuestas previas
+export interface RespuestaPreviaDto {
+  preguntaId: string;
+  respuestaId: string | null;
+}
+
+export interface ExamenContinuacion extends ExamenConPreguntas {
+  respuestasPrevias?: RespuestaPreviaDto[];
+}
+
+export interface GuardarRespuestasParcialesDto {
+  examenId: string;
+  respuestas: RespuestaUsuarioDto[];
+}
