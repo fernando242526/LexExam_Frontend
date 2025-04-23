@@ -51,6 +51,14 @@
                         <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
                         {{ examen.duracionMinutos }} minutos
                     </span>
+                    
+                    <!-- Indicador de guardado -->
+                    @if (isSaving) {
+                    <span class="text-sm text-blue-600 dark:text-blue-400 flex items-center gap-1 ml-2">
+                        <fa-icon [icon]="faSpinner" class="animate-spin"></fa-icon>
+                        <span>Guardando...</span>
+                    </span>
+                    }
                 </div>
             </div>
 
@@ -118,7 +126,7 @@
                         <!-- Indicadores de preguntas -->
                         <div class="flex flex-wrap justify-center gap-2 mx-4">
                             @for (pregunta of examen.preguntas; track pregunta.id; let i = $index) {
-                            <button type="button" (click)="currentQuestionIndex = i"
+                            <button type="button" (click)="cambiarAPregunta(i)"
                                 class="w-8 h-8 flex items-center justify-center rounded-full text-sm transition-colors duration-200"
                                 [class]="getIndicadorClass(i)">
                                 {{ i + 1 }}
