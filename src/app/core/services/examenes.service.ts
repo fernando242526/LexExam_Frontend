@@ -77,6 +77,16 @@ export class ExamenesService {
         map(response => response.data)
       );
   }
+
+  /**
+   * Continúa un examen ya iniciado y obtiene sus preguntas
+   */
+  continuarExamen(examenId: string): Observable<ExamenConPreguntas> {
+    return this.http.get<ApiResponse<ExamenConPreguntas>>(`${this.apiUrl}/${examenId}/continuar`)
+      .pipe(
+        map(response => response.data)
+      );
+  }
   
   /**
    * Envía las respuestas del examen

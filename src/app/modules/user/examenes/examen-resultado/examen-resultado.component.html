@@ -151,14 +151,30 @@
                     <!-- Listado de respuestas -->
                     <div class="p-4">
                         <div class="space-y-2">
+                            @if (!respuesta.respuesta) {
+                            <div class="flex items-start p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800">
+                                <div class="mr-3 mt-0.5">
+                                    <fa-icon [icon]="faExclamationCircle" class="text-yellow-600 dark:text-yellow-400"></fa-icon>
+                                </div>
+                                <div>
+                                    <p class="text-yellow-800 dark:text-yellow-200">
+                                        Pregunta no respondida
+                                    </p>
+                                    <p class="text-sm mt-1 text-yellow-700 dark:text-yellow-300">
+                                        No seleccionaste ninguna respuesta para esta pregunta
+                                    </p>
+                                </div>
+                            </div>
+                            }
+                            
                             @for (opcion of respuesta.pregunta?.respuestas; track opcion.id) {
                             <div class="flex items-start p-3 rounded-lg" [class]="opcion.id === respuesta.respuestaId && respuesta.esCorrecta 
-                               ? 'bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800' 
-                               : opcion.id === respuesta.respuestaId && !respuesta.esCorrecta 
-                               ? 'bg-bordeaux-50 dark:bg-bordeaux-900/30 border border-bordeaux-200 dark:border-bordeaux-800' 
-                               : opcion.esCorrecta 
-                               ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800'
-                               : 'bg-surface-alt border border-border'">
+                            ? 'bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800' 
+                            : opcion.id === respuesta.respuestaId && !respuesta.esCorrecta 
+                            ? 'bg-bordeaux-50 dark:bg-bordeaux-900/30 border border-bordeaux-200 dark:border-bordeaux-800' 
+                            : opcion.esCorrecta 
+                            ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800'
+                            : 'bg-surface-alt border border-border'">
                                 <div class="mr-3 mt-0.5">
                                     @if (opcion.id === respuesta.respuestaId && respuesta.esCorrecta) {
                                     <fa-icon [icon]="faCheckCircle"
@@ -175,10 +191,10 @@
                                 </div>
                                 <div>
                                     <p [class]="opcion.id === respuesta.respuestaId 
-                              ? respuesta.esCorrecta 
+                            ? respuesta.esCorrecta 
                                 ? 'text-green-800 dark:text-green-200' 
                                 : 'text-bordeaux-800 dark:text-bordeaux-200'
-                              : opcion.esCorrecta 
+                            : opcion.esCorrecta 
                                 ? 'text-blue-800 dark:text-blue-200'
                                 : 'text-text-primary'">
                                         {{ opcion.texto }}

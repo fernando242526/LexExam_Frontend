@@ -108,12 +108,12 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
           // Si está pendiente, lo iniciamos
           this.iniciarExamen(examenId);
         } else if (estado.estado === EstadoExamen.INICIADO) {
-          // Si ya está iniciado, obtenemos el tiempo restante
+          // Si ya está iniciado, continuamos el examen
           this.tiempoRestante = estado.tiempoRestante;
           this.tiempoTotal = estado.tiempoTotal;
           
-          // Cargamos el examen
-          this.obtenerExamen(examenId);
+          // Llamamos al método continuarExamen en lugar de obtenerExamen
+          this.continuarExamen(examenId);
           
           // Iniciamos el contador
           this.iniciarContador();
@@ -143,7 +143,7 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
         this.examen = examen;
         this.tiempoRestante = examen.duracionMinutos * 60; // en segundos
         this.tiempoTotal = examen.duracionMinutos * 60;
-        console.log('examen recibido:', examen);
+        console.log('Examen iniciado:', examen);
         
         // Crear FormGroup con todas las preguntas
         this.crearFormularioRespuestas(examen.preguntas);
@@ -162,33 +162,40 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
   }
   
   /**
-   * Obtiene un examen ya iniciado
+   * Continúa un examen ya iniciado
    */
-  obtenerExamen(examenId: string): void {
-    this.examenesService.getExamen(examenId).subscribe({
+  continuarExamen(examenId: string): void {
+    this.examenesService.continuarExamen(examenId).subscribe({
       next: (examen) => {
-        // Creamos nuestro propio objeto ExamenConPreguntas ya que la API 
-        // no devuelve las preguntas al obtener un examen ya iniciado
-        // Esta parte podría requerir un endpoint adicional en el backend
+        this.examen = examen;
+        console.log('Examen continuado:', examen);
         
-        // Por ahora, como solución temporal, redirigimos a la lista
-        this.toastService.warning(
-          'Sesión de examen no disponible', 
-          'No se pudieron recuperar las preguntas de un examen en progreso. Por favor, inicie un nuevo examen.'
-        );
-        this.router.navigate(['/user/examenes']);
+        // Crear FormGroup con todas las preguntas
+        this.crearFormularioRespuestas(examen.preguntas);
         
-        // En un caso real, obtendrías las preguntas de algún modo y continuarías
-        this.examen = { ...examen, preguntas: [] };
-        this.crearFormularioRespuestas(this.examen.preguntas);
         this.isLoading = false;
+        
+        // Mostrar notificación de éxito
+        this.toastService.info(
+          'Examen continuado', 
+          'Has retomado el examen desde donde lo dejaste. El tiempo sigue corriendo.'
+        );
       },
       error: (err) => {
-        console.error('Error obteniendo examen:', err);
-        this.error = 'Error al cargar el examen. Por favor, intente de nuevo.';
+        console.error('Error continuando examen:', err);
+        this.error = 'Error al continuar el examen. Por favor, intente de nuevo.';
         this.isLoading = false;
       }
     });
+  }
+  
+  /**
+   * Obtiene un examen (método obsoleto, mantenido por compatibilidad)
+   * Ahora usamos continuarExamen en su lugar
+   */
+  obtenerExamen(examenId: string): void {
+    // Este método ya no se usa, redirigimos a continuarExamen
+    this.continuarExamen(examenId);
   }
   
   /**
@@ -279,40 +286,32 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
    */
   finalizarExamen(porTiempoAgotado: boolean = false): void {
     if (!this.examen) return;
-    
+  
     this.isSubmitting = true;
-    
-    // Si finalizó por tiempo agotado y no fue confirmado por el usuario
-    if (porTiempoAgotado && !confirm('El tiempo ha terminado. ¿Desea enviar las respuestas?')) {
-      this.isSubmitting = false;
-      this.router.navigate(['/examenes']);
-      return;
-    }
-    
-    // Reunir todas las respuestas seleccionadas
+  
+    // Reunir todas las respuestas, incluyendo las no contestadas como null
     const respuestas: RespuestaUsuarioDto[] = [];
-    
+  
     this.examen.preguntas.forEach(pregunta => {
-      const respuestaId = this.respuestasForm.get(`pregunta_${pregunta.id}`)?.value;
-      
-      if (respuestaId) {
-        respuestas.push({
-          preguntaId: pregunta.id,
-          respuestaId
-        });
-      }
+      const respuestaId = this.respuestasForm.get(`pregunta_${pregunta.id}`)?.value || null;
+  
+      respuestas.push({
+        preguntaId: pregunta.id,
+        respuestaId
+      });
     });
-    
+  
     // Verificar si hay respuestas sin contestar
-    const preguntasSinResponder = this.examen.preguntas.length - respuestas.length;
-    
-    if (preguntasSinResponder > 0 && !porTiempoAgotado) {
+    const preguntasSinResponder = respuestas.filter(r => r.respuestaId === null).length;
+  
+    // Mostrar confirmación solo si NO es por tiempo agotado y hay preguntas sin responder
+    if (!porTiempoAgotado && preguntasSinResponder > 0) {
       if (!confirm(`Tiene ${preguntasSinResponder} pregunta(s) sin responder. ¿Desea finalizar el examen de todas formas?`)) {
         this.isSubmitting = false;
         return;
       }
     }
-    
+  
     // Enviar respuestas al servidor
     this.examenesService.enviarRespuestas({
       examenId: this.examen.id,
@@ -322,20 +321,20 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (resultado) => {
         this.toastService.success(
-          'Examen completado', 
+          'Examen completado',
           `Ha obtenido ${resultado.puntuacionTotal} puntos (${resultado.porcentajeAcierto}% de aciertos)`
         );
-        console.log('Examen enviado, estas son las respuestas',this.examenId, respuestas);
-        
+        console.log('Examen enviado, estas son las respuestas', this.examenId, respuestas);
+  
         // Redirigir a la página de resultados
         this.router.navigate(['/user/examenes/resultado', this.examen?.id]);
       },
       error: (err) => {
         console.error('Error enviando respuestas:', err);
         console.log(this.examenId, 'Respuestas del examen enviado con error:', respuestas);
-        
+  
         this.toastService.error(
-          'Error al enviar respuestas', 
+          'Error al enviar respuestas',
           'No se pudo completar el examen. Por favor, intente de nuevo.'
         );
       }
