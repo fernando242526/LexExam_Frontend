@@ -80,7 +80,7 @@ export interface RespuestaUsuarioDetalle {
   tiempoRespuesta: number | null;
   pregunta?: any; // Se puede detallar más si es necesario
   preguntaId: string;
-  respuesta?: any; // Se puede detallar más si es necesario
+  respuesta?: any | null; // Se puede detallar más si es necesario
   respuestaId: string;
   resultadoExamenId: string;
 }

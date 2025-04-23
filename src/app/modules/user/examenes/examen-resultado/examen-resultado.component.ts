@@ -15,7 +15,8 @@ import {
   faCalendarAlt,
   faQuestionCircle,
   faInfoCircle,
-  faRedo
+  faRedo,
+  faExclamationCircle
 } from '@fortawesome/free-solid-svg-icons';
 
 import { ToastService } from '../../../../core/services/toast.service';
@@ -49,6 +50,7 @@ export default class ExamenResultadoComponent implements OnInit {
   faQuestionCircle = faQuestionCircle;
   faInfoCircle = faInfoCircle;
   faRedo = faRedo;
+  faExclamationCircle = faExclamationCircle;
   
   // Estados
   isLoading = true;
