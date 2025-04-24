@@ -60,6 +60,7 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
   error: string | null = null;
   examenId: string | null = null;
   examen: ExamenConPreguntas | null = null;
+  isSavingCancelled = false;
 
   // Formulario para capturar respuestas
   respuestasForm: FormGroup;
@@ -76,7 +77,7 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
   
   // Para el guardado automático
   private saveSubject = new Subject<string>();
-  private saveSubscription?: Subscription;
+  private saveSubscription?: Subscription | null;
   isSaving = false;
   lastSaveTime: Date | null = null;
   
@@ -115,8 +116,8 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
       this.saveSubscription.unsubscribe();
     }
     
-    // Guardar una última vez al salir
-    if (this.examen && !this.isSubmitting) {
+    // Solo guardar si no está cancelado
+    if (this.examen && !this.isSubmitting && !this.tiempoAgotado && !this.isSavingCancelled) {
       this.guardarRespuestasParciales(true);
     }
   }
@@ -196,17 +197,26 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
         this.examen = examen;
         console.log('Examen continuado:', examen);
         
-        // Crear FormGroup con todas las preguntas
+        // Si el backend ya envía las preguntas ordenadas, no necesitamos hacer nada más
+        // Pero si necesitamos ordenarlas explícitamente, podemos hacerlo así:
+        if (this.examen && this.examen.preguntas) {
+          // Ordenar preguntas por la propiedad orden si existe
+          this.examen.preguntas.sort((a, b) => {
+            // Si no tienen orden, mantener el orden original
+            if (a.orden === undefined || b.orden === undefined) return 0;
+            return a.orden - b.orden;
+          });
+        }
+        
+        // El resto del código sigue igual...
         this.crearFormularioRespuestas(examen.preguntas);
         
-        // Si hay respuestas previas, llenar el formulario con ellas
         if (examen.respuestasPrevias && examen.respuestasPrevias.length > 0) {
           this.cargarRespuestasPrevias(examen.respuestasPrevias);
         }
         
         this.isLoading = false;
         
-        // Mostrar notificación de éxito
         this.toastService.info(
           'Examen continuado', 
           'Has retomado el examen desde donde lo dejaste. El tiempo sigue corriendo.'
@@ -352,7 +362,7 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
    * Guarda las respuestas actuales sin finalizar el examen
    */
   private guardarRespuestasParciales(forzar: boolean = false): void {
-    if (!this.examen || this.isSubmitting || this.isSaving) return;
+    if (!this.examen || this.isSubmitting || this.isSaving || this.isSavingCancelled) return;
     
     this.isSaving = true;
     
@@ -382,7 +392,10 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
         console.log('Respuestas guardadas automáticamente.');
       },
       error: (err) => {
-        console.error('Error guardando respuestas automáticamente:', err);
+        // Ignorar específicamente errores 409 (Conflict) al finalizar el examen
+        if (err.status !== 409 || forzar) {
+          console.error('Error guardando respuestas automáticamente:', err);
+        }
         // No mostramos error al usuario para no interrumpir su experiencia
       }
     });
@@ -399,9 +412,16 @@ export default class EmpezarExamenComponent implements OnInit, OnDestroy {
    * Finaliza el examen y envía las respuestas
    */
   finalizarExamen(porTiempoAgotado: boolean = false): void {
-    if (!this.examen) return;
+    if (!this.examen || this.isSubmitting) return;
   
+    // Marcar que estamos enviando y cancelar cualquier guardado
     this.isSubmitting = true;
+    this.isSavingCancelled = true;
+    
+    if (this.saveSubscription) {
+      this.saveSubscription.unsubscribe(); // Detener por completo la suscripción
+      this.saveSubscription = null; // Limpiarla
+    }
   
     // Reunir todas las respuestas, incluyendo las no contestadas como null
     const respuestas: RespuestaUsuarioDto[] = [];

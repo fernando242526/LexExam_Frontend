@@ -26,6 +26,14 @@ export interface PreguntaExamen {
   id: string;
   texto: string;
   respuestas: RespuestaExamen[];
+  orden?: number; // Nuevo campo para guardar el orden
+}
+
+export interface ExamenPregunta {
+  id: string;
+  examenId: string;
+  preguntaId: string;
+  orden: number;
 }
 
 export interface RespuestaExamen {
@@ -50,6 +58,7 @@ export interface ExamenConPreguntas extends Examen {
 export interface RespuestaUsuarioDto {
   preguntaId: string;
   respuestaId: string;
+  orden?: number;
 }
 
 export interface EnviarRespuestasDto {

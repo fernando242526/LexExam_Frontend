@@ -81,6 +81,21 @@ export default class ExamenResultadoComponent implements OnInit {
     this.examenesService.getResultadoExamen(examenId).subscribe({
       next: (resultado) => {
         this.resultado = resultado;
+        
+        // Ordenar las respuestas según orden si es necesario
+        if (this.resultado && this.resultado.respuestasUsuario) {
+          // Verificar si las respuestas tienen una propiedad de orden
+          const tienenOrden = this.resultado.respuestasUsuario.some(r => r.pregunta?.orden !== undefined);
+          
+          if (tienenOrden) {
+            this.resultado.respuestasUsuario.sort((a, b) => {
+              const ordenA = a.pregunta?.orden || 0;
+              const ordenB = b.pregunta?.orden || 0;
+              return ordenA - ordenB;
+            });
+          }
+        }
+        
         console.log('Resultado del examen:', resultado);
         this.isLoading = false;
       },
