@@ -1,330 +1,357 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { 
+  FormArray, 
+  FormBuilder, 
+  FormControl, 
+  FormGroup, 
+  ReactiveFormsModule, 
+  Validators 
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { 
-  faSave, 
   faPlus, 
-  faTrash,
+  faTrash, 
+  faSave, 
   faArrowLeft, 
-  faSpinner,
-  faExclamationTriangle,
-  faTimes
+  faExclamationCircle,
+  faCheckCircle,
+  faSpinner
 } from '@fortawesome/free-solid-svg-icons';
-import { finalize, switchMap, tap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { NivelDificultad, CreatePreguntaDto } from '../../../../core/models/pregunta.model';
+import { TemasService } from '../../../../core/services/temas.service';
 import { PreguntasService } from '../../../../core/services/preguntas.service';
+import { ToastService } from '../../../../core/services/toast.service';
+import { TemaSelect } from '../../../../core/models/tema.model';
 import { EspecialidadesService } from '../../../../core/services/especialidades.service';
 import { BalotariosService } from '../../../../core/services/balotario.service';
-import { TemasService } from '../../../../core/services/temas.service';
-import { ToastService } from '../../../../core/services/toast.service';
-import { CreatePreguntaDto, NivelDificultad } from '../../../../core/models/pregunta.model';
 import { EspecialidadSelect } from '../../../../core/models/especialidad.model';
 import { BalotarioSelect } from '../../../../core/models/balotario.model';
-import { TemaSelect } from '../../../../core/models/tema.model';
+import { finalize, switchMap, of } from 'rxjs';
 
-/**
- * Componente para la creación masiva de preguntas
- */
 @Component({
   selector: 'app-preguntas-form',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
     FontAwesomeModule
   ],
   templateUrl: './preguntas-form.component.html',
-  styleUrl: './preguntas-form.component.scss'
+  styleUrls: ['./preguntas-form.component.scss']
 })
-export default class PreguntasFormComponent implements OnInit {
+export default class PreguntaFormComponent implements OnInit {
+  // Servicios inyectados
   private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private location = inject(Location);
-  private preguntasService = inject(PreguntasService);
+  private temasService = inject(TemasService);
   private especialidadesService = inject(EspecialidadesService);
   private balotariosService = inject(BalotariosService);
-  private temasService = inject(TemasService);
+  private preguntasService = inject(PreguntasService);
   private toastService = inject(ToastService);
-  
+  private router = inject(Router);
+
   // Iconos
-  faSave = faSave;
   faPlus = faPlus;
   faTrash = faTrash;
+  faSave = faSave;
   faArrowLeft = faArrowLeft;
+  faExclamationCircle = faExclamationCircle;
+  faCheckCircle = faCheckCircle;
   faSpinner = faSpinner;
-  faExclamationTriangle = faExclamationTriangle;
-  faTimes = faTimes;
-  
+
+  // Signals
+  isSubmitting = signal(false);
+  isLoading = signal(false);
+  error = signal<string | null>(null);
+  especialidades = signal<EspecialidadSelect[]>([]);
+  balotarios = signal<BalotarioSelect[]>([]);
+  temas = signal<TemaSelect[]>([]);
+
   // Enums para la plantilla
-  nivelDificultadEnum = NivelDificultad;
-  
-  // Estado del componente
-  preguntasForm: FormGroup;
-  isSubmitting = false;
-  error: string | undefined = undefined;
-  especialidades: EspecialidadSelect[] = [];
-  balotarios: BalotarioSelect[] = [];
-  temas: TemaSelect[] = [];
-  isLoadingEspecialidades = false;
-  isLoadingBalotarios = false;
-  isLoadingTemas = false;
-  
-  // Mensajes de validación
-  validationMessages = {
-    especialidadId: {
-      required: 'La especialidad es obligatoria'
-    },
-    balotarioId: {
-      required: 'El balotario es obligatorio'
-    },
-    temaId: {
-      required: 'El tema es obligatorio'
-    },
-    preguntas: {
-      required: 'Debe agregar al menos una pregunta',
-      minlength: 'Debe agregar al menos una pregunta'
-    },
-    pregunta: {
-      texto: {
-        required: 'El texto de la pregunta es obligatorio',
-        minlength: 'El texto debe tener al menos 10 caracteres'
-      },
-      respuestas: {
-        required: 'Debe agregar al menos dos respuestas',
-        minlength: 'Debe agregar al menos dos respuestas'
-      }
-    },
-    respuesta: {
-      texto: {
-        required: 'El texto de la respuesta es obligatorio'
-      }
-    }
-  };
-  
-  constructor() {
-    this.preguntasForm = this.fb.group({
-      especialidadId: ['', Validators.required],
-      balotarioId: [{value: '', disabled: true}, Validators.required],
-      temaId: [{value: '', disabled: true}, Validators.required],
-      preguntas: this.fb.array([], [Validators.required, Validators.minLength(1)])
-    });
-  }
-  
+  nivelDificultad = NivelDificultad;
+
+  // Formulario de selección para los filtros en cascada
+  seleccionForm = this.fb.group({
+    especialidadId: ['', Validators.required],
+    balotarioId: [{value: '', disabled: true}, Validators.required],
+    temaId: [{value: '', disabled: true}, Validators.required]
+  });
+
+  // Formulario principal que solo contiene las preguntas
+  preguntasForm = this.fb.group({
+    preguntas: this.fb.array([
+      this.createPreguntaFormGroup()
+    ])
+  });
+
+  // Computed properties
+  preguntasArray = computed(() => this.preguntasForm.get('preguntas') as FormArray);
+  temaSeleccionado = computed(() => {
+    const temaId = this.seleccionForm.get('temaId')?.value;
+    return this.temas().find(tema => tema.id === temaId);
+  });
+
   ngOnInit(): void {
-    // Cargar especialidades
-    this.loadEspecialidades();
-    
-    // Agregar primera pregunta por defecto
-    this.addPregunta();
-    
-    // Configurar cambios en cascada para los filtros
-    this.setupFilterCascade();
+    this.cargarEspecialidades();
+    this.setupFormListeners();
   }
-  
+
   /**
-   * Configura la lógica en cascada para los filtros
+   * Configura los listeners para los controles de selección en cascada
    */
-  setupFilterCascade(): void {
-    // Cuando cambia la especialidad, carga los balotarios
-    this.preguntasForm.get('especialidadId')?.valueChanges.pipe(
-      tap(especialidadId => {
-        // Resetear balotario y tema
-        this.preguntasForm.get('balotarioId')?.setValue('');
-        this.preguntasForm.get('temaId')?.setValue('');
-        
-        // Habilitar/deshabilitar balotario
-        if (especialidadId) {
-          this.preguntasForm.get('balotarioId')?.enable();
-        } else {
-          this.preguntasForm.get('balotarioId')?.disable();
-          this.preguntasForm.get('temaId')?.disable();
-        }
-        
-        // Limpiar listas dependientes
-        this.balotarios = [];
-        this.temas = [];
-      }),
-      switchMap(especialidadId => {
-        if (especialidadId) {
-          this.isLoadingBalotarios = true;
-          return this.balotariosService.getBalotariosForSelect(especialidadId)
-            .pipe(finalize(() => this.isLoadingBalotarios = false));
-        }
-        return of([]);
-      })
-    ).subscribe(balotarios => {
-      this.balotarios = balotarios;
+  setupFormListeners(): void {
+    // Escuchar cambios en especialidadId
+    this.seleccionForm.get('especialidadId')?.valueChanges.subscribe(especialidadId => {
+      // Resetear controles dependientes
+      this.seleccionForm.get('balotarioId')?.setValue('');
+      this.seleccionForm.get('temaId')?.setValue('');
+      
+      // Actualizar estado de habilitación
+      if (especialidadId) {
+        this.seleccionForm.get('balotarioId')?.enable();
+        this.cargarBalotarios(especialidadId);
+      } else {
+        this.seleccionForm.get('balotarioId')?.disable();
+        this.seleccionForm.get('temaId')?.disable();
+        this.balotarios.set([]);
+        this.temas.set([]);
+      }
     });
-    
-    // Cuando cambia el balotario, carga los temas
-    this.preguntasForm.get('balotarioId')?.valueChanges.pipe(
-      tap(balotarioId => {
-        // Resetear tema
-        this.preguntasForm.get('temaId')?.setValue('');
-        
-        // Habilitar/deshabilitar tema
-        if (balotarioId) {
-          this.preguntasForm.get('temaId')?.enable();
-        } else {
-          this.preguntasForm.get('temaId')?.disable();
-        }
-        
-        // Limpiar temas
-        this.temas = [];
-      }),
-      switchMap(balotarioId => {
-        if (balotarioId) {
-          this.isLoadingTemas = true;
-          return this.temasService.getTemasForSelect(balotarioId)
-            .pipe(finalize(() => this.isLoadingTemas = false));
-        }
-        return of([]);
-      })
-    ).subscribe(temas => {
-      this.temas = temas;
+
+    // Escuchar cambios en balotarioId
+    this.seleccionForm.get('balotarioId')?.valueChanges.subscribe(balotarioId => {
+      // Resetear tema
+      this.seleccionForm.get('temaId')?.setValue('');
+      
+      // Actualizar estado de habilitación
+      if (balotarioId) {
+        this.seleccionForm.get('temaId')?.enable();
+        this.cargarTemas(balotarioId);
+      } else {
+        this.seleccionForm.get('temaId')?.disable();
+        this.temas.set([]);
+      }
     });
   }
-  
+
   /**
-   * Carga las especialidades para el filtro
+   * Carga las especialidades disponibles
    */
-  loadEspecialidades(): void {
-    this.isLoadingEspecialidades = true;
+  cargarEspecialidades(): void {
+    this.isLoading.set(true);
     this.especialidadesService.getEspecialidadesForSelect()
-      .pipe(finalize(() => this.isLoadingEspecialidades = false))
+      .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (especialidades) => {
-          this.especialidades = especialidades;
+          this.especialidades.set(especialidades);
         },
         error: (err) => {
           console.error('Error cargando especialidades:', err);
+          this.error.set('No se pudieron cargar las especialidades. Por favor, intente de nuevo.');
           this.toastService.error('Error', 'No se pudieron cargar las especialidades');
         }
       });
   }
-  
+
   /**
-   * Obtiene el FormArray de preguntas
+   * Carga los balotarios para una especialidad específica
    */
-  get preguntas(): FormArray {
-    return this.preguntasForm.get('preguntas') as FormArray;
+  cargarBalotarios(especialidadId: string): void {
+    this.isLoading.set(true);
+    this.balotariosService.getBalotariosForSelect(especialidadId)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (balotarios) => {
+          this.balotarios.set(balotarios);
+        },
+        error: (err) => {
+          console.error('Error cargando balotarios:', err);
+          this.error.set('No se pudieron cargar los balotarios. Por favor, intente de nuevo.');
+          this.toastService.error('Error', 'No se pudieron cargar los balotarios');
+        }
+      });
   }
-  
+
   /**
-   * Obtiene el FormArray de respuestas para una pregunta específica
+   * Carga los temas para un balotario específico
    */
-  getRespuestas(preguntaIndex: number): FormArray {
-    return this.preguntas.at(preguntaIndex).get('respuestas') as FormArray;
+  cargarTemas(balotarioId: string): void {
+    this.isLoading.set(true);
+    this.temasService.getTemasForSelect(balotarioId)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (temas) => {
+          this.temas.set(temas);
+        },
+        error: (err) => {
+          console.error('Error cargando temas:', err);
+          this.error.set('No se pudieron cargar los temas. Por favor, intente de nuevo.');
+          this.toastService.error('Error', 'No se pudieron cargar los temas');
+        }
+      });
   }
-  
+
   /**
-   * Agrega una nueva pregunta al formulario
+   * Crea un FormGroup para una nueva pregunta
    */
-  addPregunta(): void {
-    const preguntaForm = this.fb.group({
+  createPreguntaFormGroup(): FormGroup {
+    return this.fb.group({
       texto: ['', [Validators.required, Validators.minLength(10)]],
       explicacion: [''],
-      nivelDificultad: [NivelDificultad.MEDIO],
-      respuestas: this.fb.array([], [Validators.required, Validators.minLength(2)])
+      nivelDificultad: [NivelDificultad.MEDIO, Validators.required],
+      respuestas: this.fb.array([
+        this.createRespuestaFormGroup(true),  // Primera respuesta (correcta por defecto)
+        this.createRespuestaFormGroup(false)  // Segunda respuesta
+      ])
     });
-    
-    this.preguntas.push(preguntaForm);
-    
-    // Agregar 2 respuestas por defecto (una correcta y una incorrecta)
-    this.addRespuesta(this.preguntas.length - 1, true);
-    this.addRespuesta(this.preguntas.length - 1, false);
   }
-  
+
   /**
-   * Elimina una pregunta del formulario
+   * Crea un FormGroup para una nueva respuesta
    */
-  removePregunta(index: number): void {
-    if (this.preguntas.length > 1) {
-      this.preguntas.removeAt(index);
-    } else {
-      this.toastService.warning('No permitido', 'Debe tener al menos una pregunta');
-    }
-  }
-  
-  /**
-   * Agrega una nueva respuesta a una pregunta específica
-   */
-  addRespuesta(preguntaIndex: number, esCorrecta: boolean = false): void {
-    const respuestas = this.getRespuestas(preguntaIndex);
-    const respuestaForm = this.fb.group({
+  createRespuestaFormGroup(esCorrecta: boolean = false): FormGroup {
+    return this.fb.group({
       texto: ['', Validators.required],
       esCorrecta: [esCorrecta]
     });
-    
-    respuestas.push(respuestaForm);
   }
-  
+
+  /**
+   * Obtiene el array de respuestas para una pregunta específica
+   */
+  getRespuestasArray(preguntaIndex: number): FormArray {
+    return (this.preguntasArray().at(preguntaIndex) as FormGroup).get('respuestas') as FormArray;
+  }
+
+  /**
+   * Añade una nueva pregunta al formulario
+   */
+  agregarPregunta(): void {
+    this.preguntasArray().push(this.createPreguntaFormGroup());
+  }
+
+  /**
+   * Elimina una pregunta del formulario
+   */
+  eliminarPregunta(index: number): void {
+    // Asegurar que siempre quede al menos una pregunta
+    if (this.preguntasArray().length > 1) {
+      this.preguntasArray().removeAt(index);
+    } else {
+      this.toastService.warning('No se puede eliminar', 'Debe haber al menos una pregunta');
+    }
+  }
+
+  /**
+   * Añade una nueva respuesta a una pregunta específica
+   */
+  agregarRespuesta(preguntaIndex: number): void {
+    const respuestasArray = this.getRespuestasArray(preguntaIndex);
+    respuestasArray.push(this.createRespuestaFormGroup());
+  }
+
   /**
    * Elimina una respuesta de una pregunta específica
    */
-  removeRespuesta(preguntaIndex: number, respuestaIndex: number): void {
-    const respuestas = this.getRespuestas(preguntaIndex);
+  eliminarRespuesta(preguntaIndex: number, respuestaIndex: number): void {
+    const respuestasArray = this.getRespuestasArray(preguntaIndex);
     
-    if (respuestas.length > 2) {
-      respuestas.removeAt(respuestaIndex);
-    } else {
-      this.toastService.warning('No permitido', 'Cada pregunta debe tener al menos dos respuestas');
-    }
-  }
-  
-  /**
-   * Cambia el estado correcto/incorrecto de una respuesta
-   */
-  onCorrectoChange(preguntaIndex: number, respuestaIndex: number, event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const checked = target.checked;
-    
-    // Si se está desmarcando, verificar que haya al menos una respuesta correcta
-    if (!checked) {
-      const respuestas = this.getRespuestas(preguntaIndex);
-      const tieneOtraCorrecta = Array.from({length: respuestas.length})
-        .some((_, i) => i !== respuestaIndex && respuestas.at(i).get('esCorrecta')?.value);
-      
-      if (!tieneOtraCorrecta) {
-        target.checked = true; // Revertir el cambio
-        this.toastService.warning('No permitido', 'Cada pregunta debe tener al menos una respuesta correcta');
-        return;
+    // Asegurar que siempre queden al menos 2 respuestas
+    if (respuestasArray.length > 2) {
+      // Si eliminamos una respuesta correcta, marcar la primera como correcta
+      const respuestaAEliminar = respuestasArray.at(respuestaIndex) as FormGroup;
+      if (respuestaAEliminar.get('esCorrecta')?.value === true) {
+        this.setRespuestaCorrecta(preguntaIndex, 0);
       }
+      
+      respuestasArray.removeAt(respuestaIndex);
+    } else {
+      this.toastService.warning('No se puede eliminar', 'Debe haber al menos dos respuestas');
     }
   }
-  
+
   /**
-   * Valida y envía el formulario
+   * Establece una respuesta como correcta y las demás como incorrectas
+   */
+  setRespuestaCorrecta(preguntaIndex: number, respuestaIndex: number): void {
+    const respuestasArray = this.getRespuestasArray(preguntaIndex);
+    
+    // Establecer todas como incorrectas
+    for (let i = 0; i < respuestasArray.length; i++) {
+      const respuesta = respuestasArray.at(i) as FormGroup;
+      respuesta.get('esCorrecta')?.setValue(i === respuestaIndex);
+    }
+  }
+
+  /**
+   * Valida un FormGroup específico y sus controles
+   */
+  isFormGroupInvalid(formGroup: FormGroup): boolean {
+    return formGroup.invalid && (formGroup.dirty || formGroup.touched);
+  }
+
+  /**
+   * Guarda el formulario y envía las preguntas al servidor
    */
   onSubmit(): void {
-    if (this.preguntasForm.invalid || this.isSubmitting) {
-      // Marcar todos los campos como tocados para mostrar errores
-      this.markFormGroupTouched(this.preguntasForm);
-      this.toastService.error('Error', 'Por favor, corrija los errores en el formulario');
+    // Validar selección de tema
+    if (this.seleccionForm.invalid) {
+      this.seleccionForm.markAllAsTouched();
+      this.toastService.warning('Selección incompleta', 'Debe seleccionar una especialidad, balotario y tema');
       return;
     }
-    
-    this.isSubmitting = true;
-    this.error = undefined;
-    
-    const temaId = this.preguntasForm.get('temaId')?.value;
-    const preguntas: CreatePreguntaDto[] = this.preguntas.value;
-    
-    // Verificar que todas las preguntas tengan al menos una respuesta correcta
+
+    // Validar formulario de preguntas
+    if (this.preguntasForm.invalid) {
+      // Marcar todos los controles como tocados para mostrar validaciones
+      this.markFormGroupTouched(this.preguntasForm);
+      this.toastService.warning('Formulario inválido', 'Por favor, revise los campos marcados');
+      return;
+    }
+
+    // Verificar que cada pregunta tenga una respuesta correcta
+    const preguntas = this.preguntasArray();
     for (let i = 0; i < preguntas.length; i++) {
-      const pregunta = preguntas[i];
-      const tieneRespuestaCorrecta = pregunta.respuestas.some(r => r.esCorrecta);
+      const respuestas = this.getRespuestasArray(i);
+      const tieneRespuestaCorrecta = Array.from({ length: respuestas.length })
+        .some((_, j) => (respuestas.at(j) as FormGroup).get('esCorrecta')?.value === true);
       
       if (!tieneRespuestaCorrecta) {
-        this.isSubmitting = false;
-        this.toastService.error('Error', `La pregunta ${i + 1} debe tener al menos una respuesta correcta`);
+        this.toastService.warning(
+          'Respuesta correcta requerida', 
+          `La pregunta ${i + 1} debe tener al menos una respuesta correcta`
+        );
         return;
       }
     }
-    
-    this.preguntasService.createPreguntasMasivas(temaId, preguntas)
-      .pipe(finalize(() => this.isSubmitting = false))
+
+    // Preparar los datos para enviar
+    const temaId = this.seleccionForm.get('temaId')?.value as string;
+    const preguntasDto: CreatePreguntaDto[] = this.preguntasArray().controls.map(control => {
+      const preguntaGroup = control as FormGroup;
+      const respuestasArray = preguntaGroup.get('respuestas') as FormArray;
+      
+      return {
+        texto: preguntaGroup.get('texto')?.value,
+        explicacion: preguntaGroup.get('explicacion')?.value || '',
+        nivelDificultad: preguntaGroup.get('nivelDificultad')?.value,
+        respuestas: respuestasArray.controls.map(respControl => {
+          const respuestaGroup = respControl as FormGroup;
+          return {
+            texto: respuestaGroup.get('texto')?.value,
+            esCorrecta: respuestaGroup.get('esCorrecta')?.value
+          };
+        })
+      };
+    });
+
+    // Enviar las preguntas al servidor
+    this.isSubmitting.set(true);
+    this.error.set(null);
+
+    this.preguntasService.createPreguntasMasivas(temaId, preguntasDto)
+      .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: (result) => {
           this.toastService.success(
@@ -335,29 +362,50 @@ export default class PreguntasFormComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error al crear preguntas:', err);
-          this.error = err.error?.message ?? 'Error al crear las preguntas. Por favor, intente de nuevo.';
-          this.toastService.error('Error', this.error);
+          this.error.set('No se pudieron crear las preguntas. Por favor, intente de nuevo.');
+          this.toastService.error(
+            'Error al crear preguntas',
+            err.error?.message || 'Ocurrió un error inesperado'
+          );
         }
       });
   }
-  
-  /**
-   * Marca recursivamente todos los controles de un FormGroup como tocados
-   */
-  markFormGroupTouched(formGroup: FormGroup | FormArray): void {
-    Object.values(formGroup.controls).forEach(control => {
-      control.markAsTouched();
 
-      if (control instanceof FormGroup || control instanceof FormArray) {
-        this.markFormGroupTouched(control);
-      }
-    });
-  }
-  
   /**
-   * Navega hacia atrás
+   * Marca todos los controles de un FormGroup como tocados
+   * para activar las validaciones visuales
    */
-  goBack(): void {
-    this.location.back();
+  private markFormGroupTouched(formGroup: FormGroup | FormArray): void {
+    if (formGroup instanceof FormArray) {
+      formGroup.controls.forEach(control => {
+        control.markAsTouched();
+        
+        if (control instanceof FormGroup || control instanceof FormArray) {
+          this.markFormGroupTouched(control);
+        }
+      });
+    } else {
+      Object.values(formGroup.controls).forEach(control => {
+        control.markAsTouched();
+        
+        if (control instanceof FormGroup || control instanceof FormArray) {
+          this.markFormGroupTouched(control);
+        }
+      });
+    }
+  }
+
+  /**
+   * Verifica si una respuesta es válida
+   */
+  isRespuestaInvalid(respuestaControl: FormControl): boolean {
+    return respuestaControl.invalid && (respuestaControl.dirty || respuestaControl.touched);
+  }
+
+  /**
+   * Navega de vuelta a la lista de preguntas
+   */
+  volver(): void {
+    this.router.navigate(['/admin/preguntas']);
   }
 }

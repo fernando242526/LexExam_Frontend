@@ -37,3 +37,29 @@ export interface CreateRespuestaDto {
   texto: string;
   esCorrecta: boolean;
 }
+
+/**
+ * Modelo para el formulario de creación de respuestas
+ */
+export interface RespuestaFormModel {
+  texto: string;
+  esCorrecta: boolean;
+}
+
+/**
+ * Modelo para el formulario de creación de preguntas
+ */
+export interface PreguntaFormModel {
+  texto: string;
+  explicacion: string;
+  nivelDificultad: NivelDificultad;
+  respuestas: RespuestaFormModel[];
+}
+
+/**
+ * Modelo para el payload que se enviará al backend
+ */
+export interface CreatePreguntasMasivoPayload {
+  temaId: string;
+  preguntas: PreguntaFormModel[];
+}
